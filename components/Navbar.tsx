@@ -18,10 +18,9 @@ import {
 const NAV_ITEMS: { href: string; label: string }[] = [
   { href: "/", label: "Home" },
   { href: "/shop", label: "Shop" },
-  { href: "/freebies", label: "Freebies" },
-  { href: "/portfolio", label: "Portfolio" },
+  { href: "/ViewProject", label: "Projects" },
   { href: "/about", label: "About" },
-  { href: "/moodboards", label: "Moodboards" },
+  { href: "/Commissions", label: "Moodboards" },
 ];
 
 const SOCIALS: { href: string; label: string; icon: React.ReactNode }[] = [
@@ -30,7 +29,7 @@ const SOCIALS: { href: string; label: string; icon: React.ReactNode }[] = [
   { href: "https://behance.net", label: "Behance", icon: <RiBehanceLine size={22} /> },
   { href: "https://x.com", label: "X", icon: <RiTwitterXLine size={20} /> },
   { href: "https://discord.com", label: "Discord", icon: <RiDiscordFill size={22} /> },
-  { href: "https://discord.com", label: "Twitch", icon: <RiTwitchFill size={22} /> },
+  { href: "https://twitch.tv/Plexdi", label: "Twitch", icon: <RiTwitchFill size={22} /> },
 ];
 
 export default function Navbar() {

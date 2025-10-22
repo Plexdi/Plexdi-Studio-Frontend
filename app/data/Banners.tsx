@@ -1,5 +1,5 @@
 // app/data/products.ts
-export const products = [
+export const banners = [
   { title: "Drip Kaiju Banner", link: "#", thumbnail: "DripKaijuBanner.png" },
   { title: "Henlaur Frieren Banner", link: "#", thumbnail: "Henlaur.png" },
   { title: "Zemi Unohana Banner", link: "#", thumbnail: "ZeniUnohana.png" },

@@ -35,7 +35,7 @@ function TopHero() {
             href="#contact"
             className="rounded-full border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-black transition hover:bg-black hover:text-white"
           >
-            Make a Commisions
+            Make a Commision
           </a>
         </div>
 
