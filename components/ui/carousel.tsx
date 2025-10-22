@@ -4,8 +4,38 @@ import { useState, useRef, useId, useEffect } from "react";
 export interface SlideData {
   title: string;
   button?: string;
-  src: string;   // absolute path like /portfolio/banners/DripKaijuBanner.png
-  link?: string; // optional link to open
+  src: string;   // e.g. /portfolio/banners/DripKaijuBanner.png
+  link?: string;
+}
+
+/* ---------- Small thumbs bar ---------- */
+function ThumbStrip({
+  slides,
+  current,
+  onPick,
+}: {
+  slides: { title: string; src: string }[];
+  current: number;
+  onPick: (i: number) => void;
+}) {
+  return (
+    <div className="mt-3 flex gap-2 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      {slides.map((s, i) => (
+        <button
+          key={`${s.title}-${i}`}
+          onClick={() => onPick(i)}
+          className={`relative h-16 w-28 shrink-0 overflow-hidden rounded-lg ring-1 transition
+            ${i === current ? "ring-gray-900" : "ring-gray-200 hover:ring-gray-300"}`}
+          title={s.title}
+        >
+          <img src={s.src} alt="" className="h-full w-full object-cover" />
+          <span className="absolute bottom-1 left-1 rounded bg-black/60 px-1 text-[10px] text-white">
+            {i + 1}
+          </span>
+        </button>
+      ))}
+    </div>
+  );
 }
 
 interface SlideProps {
@@ -16,20 +46,33 @@ interface SlideProps {
 }
 
 const Slide = ({ slide, index, current, handleSlideClick }: SlideProps) => {
-  const slideRef = useRef<HTMLLIElement>(null);
+  const slideRef = useRef<HTMLLIElement | null>(null);
   const xRef = useRef(0);
   const yRef = useRef(0);
-  const frameRef = useRef<number>();
+  // FIX: give an initial value and allow null
+  const frameRef = useRef<number | null>(null);
 
   useEffect(() => {
     const animate = () => {
-      if (!slideRef.current) return;
-      slideRef.current.style.setProperty("--x", `${xRef.current}px`);
-      slideRef.current.style.setProperty("--y", `${yRef.current}px`);
+      const el = slideRef.current;
+      if (!el) {
+        frameRef.current = requestAnimationFrame(animate);
+        return;
+      }
+      el.style.setProperty("--x", `${xRef.current}px`);
+      el.style.setProperty("--y", `${yRef.current}px`);
       frameRef.current = requestAnimationFrame(animate);
     };
+
     frameRef.current = requestAnimationFrame(animate);
-    return () => frameRef.current && cancelAnimationFrame(frameRef.current);
+
+    // FIX: cleanup must not return a value
+    return () => {
+      if (frameRef.current !== null) {
+        cancelAnimationFrame(frameRef.current);
+        frameRef.current = null;
+      }
+    };
   }, []);
 
   const onMove = (e: React.MouseEvent) => {
@@ -39,7 +82,10 @@ const Slide = ({ slide, index, current, handleSlideClick }: SlideProps) => {
     xRef.current = e.clientX - (r.left + Math.floor(r.width / 2));
     yRef.current = e.clientY - (r.top + Math.floor(r.height / 2));
   };
-  const onLeave = () => { xRef.current = 0; yRef.current = 0; };
+  const onLeave = () => {
+    xRef.current = 0;
+    yRef.current = 0;
+  };
 
   const { src, title, link, button = "View" } = slide;
 
@@ -66,18 +112,12 @@ const Slide = ({ slide, index, current, handleSlideClick }: SlideProps) => {
               : "none",
         }}
       >
-        <img
-          src={src}
-          alt={title}
-          className="absolute inset-0 h-full w-full object-cover"
-          loading="lazy"
-        />
+        <img src={src} alt={title} className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
         {current === index && (
           <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/0 to-black/0" />
         )}
       </div>
 
-      {/* caption */}
       <div
         className={`pointer-events-none absolute bottom-2 left-2 right-2 flex items-center justify-between transition-opacity ${
           current === index ? "opacity-100" : "opacity-0"
@@ -134,11 +174,8 @@ export default function PortfolioCarousel({ slides }: { slides: SlideData[] }) {
   const jump = (i: number) => current !== i && setCurrent(i);
 
   return (
-    <div
-      className="relative mx-auto w-full max-w-6xl"
-      aria-labelledby={`carousel-${id}`}
-    >
-      {/* 3:1 container; child slides take full area */}
+    <div className="relative mx-auto w-full max-w-6xl" aria-labelledby={`carousel-${id}`}>
+      {/* 3:1 container */}
       <div className="relative aspect-[3/1] w-full overflow-hidden">
         <ul
           className="absolute inset-0 flex transition-transform duration-700 ease-in-out"
@@ -162,43 +199,11 @@ export default function PortfolioCarousel({ slides }: { slides: SlideData[] }) {
           <CircleBtn title="Previous" onClick={prev} dir="prev" />
           <CircleBtn title="Next" onClick={next} dir="next" />
         </div>
-        <span className="text-xs text-gray-500">
-          {slides.length} banners • 1500×500
-        </span>
+        <span className="text-xs text-gray-500">{slides.length} banners • 1500×500</span>
       </div>
 
-      
+      {/* NEW: thumbnails */}
+      <ThumbStrip slides={slides} current={current} onPick={setCurrent} />
     </div>
   );
-
-  // NEW: small thumbs bar under the big slide
-function ThumbStrip({
-  slides,
-  current,
-  onPick,
-}: {
-  slides: { title: string; src: string }[];
-  current: number;
-  onPick: (i: number) => void;
-}) {
-  return (
-    <div className="mt-3 flex gap-2 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-      {slides.map((s, i) => (
-        <button
-          key={`${s.title}-${i}`}
-          onClick={() => onPick(i)}
-          className={`relative h-16 w-28 shrink-0 overflow-hidden rounded-lg ring-1 transition
-            ${i === current ? "ring-gray-900" : "ring-gray-200 hover:ring-gray-300"}`}
-          title={s.title}
-        >
-          <img src={s.src} alt="" className="h-full w-full object-cover" />
-          <span className="absolute bottom-1 left-1 rounded bg-black/60 px-1 text-[10px] text-white">
-            {i + 1}
-          </span>
-        </button>
-      ))}
-    </div>
-  );
-}
-
 }
