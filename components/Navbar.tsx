@@ -18,7 +18,8 @@ import {
 const NAV_ITEMS: { href: string; label: string }[] = [
   { href: "/", label: "Home" },
   { href: "/shop", label: "Shop" },
-  { href: "/ViewProject", label: "Projects" },
+  { href: "/projects", label: "Projects" },
+  { href: "/Designs", label: "Designs" },
   { href: "/about", label: "About" },
   { href: "/Commissions", label: "Moodboards" },
 ];
