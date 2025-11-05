@@ -26,13 +26,13 @@ function TopHero() {
 
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <a
-            href="#work"
+            href="/Designs"
             className="rounded-full bg-white px-6 py-2.5 text-sm font-medium text-black transition hover:bg-black hover:text-white"
           >
             View projects
           </a>
           <a
-            href="#contact"
+            href="/commissions"
             className="rounded-full border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-black transition hover:bg-black hover:text-white"
           >
             Make a Commision

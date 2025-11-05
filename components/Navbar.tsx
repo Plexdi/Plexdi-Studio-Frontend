@@ -17,7 +17,7 @@ import {
 // ---- Configurable items ----
 const NAV_ITEMS: { href: string; label: string }[] = [
   { href: "/", label: "Home" },
-  { href: "/shop", label: "Shop" },
+  // { href: "/shop", label: "Shop" },
   // { href: "/projects", label: "Projects" },
   { href: "/Designs", label: "Designs" },
   { href: "/About", label: "About" },

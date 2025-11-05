@@ -25,16 +25,16 @@ export default function AboutMe(): React.ReactNode {
             {/* CTAs */}
             <div className="mt-6 flex flex-wrap gap-3">
               <a
-                href="#work"
+                href="/Designs"
                 className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-5 py-2 text-sm font-medium hover:bg-white/10"
               >
                 View Projects
               </a>
               <a
-                href="#contact"
+                href="/commissions"
                 className="inline-flex items-center rounded-full border border-blue-500/30 bg-blue-500/10 px-5 py-2 text-sm font-medium text-blue-300 hover:bg-blue-500/20"
               >
-                Contact Me
+                Commissions
               </a>
             </div>
           </div>

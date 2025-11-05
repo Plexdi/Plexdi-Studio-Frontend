@@ -1,25 +1,50 @@
 'use client';
 
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 export default function CommissionsPage() {
   const [form, setForm] = useState({
     name: "",
     email: "",
+    discord: "",
     type: "",
     details: "",
     refs: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Hook to backend or service (Formspree, EmailJS, API)
-    console.log(form);
-    alert("Commission request sent! I’ll get back to you soon 👋");
+    setLoading(true);
+
+    try {
+      const res = await fetch("http://localhost:8080/commissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
+
+      const data = await res.json();
+      console.log("Commission submitted:", data);
+
+      toast.success("✅ Commission sent! I’ll reach out on Discord soon 🎨");
+      setForm({ name: "", email: "", discord: "", type: "", details: "", refs: "" });
+    } catch (err) {
+      console.error("Error:", err);
+      toast.error("❌ Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -68,6 +93,20 @@ export default function CommissionsPage() {
             />
           </div>
 
+          {/* Discord Username */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Discord Username</label>
+            <input
+              type="text"
+              name="discord"
+              value={form.discord}
+              onChange={handleChange}
+              required
+              className="w-full bg-[#111] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-gray-400"
+              placeholder="e.g. plexdi#1234"
+            />
+          </div>
+
           {/* Type of Commission */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">Project Type</label>
@@ -86,7 +125,23 @@ export default function CommissionsPage() {
               <option value="custom">Custom Request</option>
             </select>
           </div>
-
+          {/* Conditional input: only show when 'banner' is chosen */}
+          {form.type === "banner" && (
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">
+                Platform for Banner
+              </label>
+              <input
+                type="text"
+                name="platform"
+                value={(form as any).platform || ""}
+                onChange={handleChange}
+                required
+                className="w-full bg-[#111] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-gray-400"
+                placeholder="e.g. Twitch, YouTube, Twitter..."
+              />
+            </div>
+          )}
           {/* Project Details */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">Details</label>
@@ -118,9 +173,10 @@ export default function CommissionsPage() {
           <div className="pt-4">
             <button
               type="submit"
-              className="w-full md:w-auto px-6 py-2 bg-white text-gray-900 font-semibold rounded-lg hover:bg-gray-200 transition"
+              disabled={loading}
+              className="w-full md:w-auto px-6 py-2 bg-white text-gray-900 font-semibold rounded-lg hover:bg-gray-200 transition disabled:opacity-60"
             >
-              Send Commission Request
+              {loading ? "Sending..." : "Send Commission Request"}
             </button>
           </div>
         </form>
