@@ -1,0 +1,138 @@
+'use client';
+
+import { useState } from "react";
+
+export default function CommissionsPage() {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    type: "",
+    details: "",
+    refs: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // TODO: Hook to backend or service (Formspree, EmailJS, API)
+    console.log(form);
+    alert("Commission request sent! I’ll get back to you soon 👋");
+  };
+
+  return (
+    <main className="min-h-screen bg-[#111] text-gray-100 px-6 md:px-12 py-20">
+      <section className="max-w-4xl mx-auto space-y-10">
+        {/* HEADER */}
+        <div>
+          <h1 className="text-4xl font-bold text-white mb-3">Commission Enquiry</h1>
+          <p className="text-gray-300 leading-relaxed">
+            Looking for a <span className="font-semibold text-white">custom banner, logo, or visual design</span>?
+            Fill out the form below with your details and I’ll reach out to discuss your idea.  
+            Turnaround time typically ranges between <span className="text-white font-medium">2–5 days</span> depending on complexity.
+          </p>
+        </div>
+
+        {/* FORM */}
+        <form
+          onSubmit={handleSubmit}
+          className="bg-[#1a1a1a] p-6 rounded-2xl space-y-5 shadow-lg border border-gray-800"
+        >
+          {/* Name */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Name</label>
+            <input
+              type="text"
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              required
+              className="w-full bg-[#111] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-gray-400"
+              placeholder="Your name or username"
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Email</label>
+            <input
+              type="email"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              required
+              className="w-full bg-[#111] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-gray-400"
+              placeholder="you@example.com"
+            />
+          </div>
+
+          {/* Type of Commission */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Project Type</label>
+            <select
+              name="type"
+              value={form.type}
+              onChange={handleChange}
+              required
+              className="w-full bg-[#111] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-gray-400"
+            >
+              <option value="">Select type</option>
+              <option value="banner">Banner Design</option>
+              <option value="logo">Logo Design</option>
+              <option value="thumbnail">YouTube Thumbnail</option>
+              <option value="pfp">Profile Picture</option>
+              <option value="custom">Custom Request</option>
+            </select>
+          </div>
+
+          {/* Project Details */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Details</label>
+            <textarea
+              name="details"
+              value={form.details}
+              onChange={handleChange}
+              required
+              rows={5}
+              className="w-full bg-[#111] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-gray-400 resize-none"
+              placeholder="Describe your idea, color theme, style, etc."
+            ></textarea>
+          </div>
+
+          {/* Reference Links */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Reference Links (optional)</label>
+            <input
+              type="text"
+              name="refs"
+              value={form.refs}
+              onChange={handleChange}
+              className="w-full bg-[#111] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-gray-400"
+              placeholder="Paste any links or image references"
+            />
+          </div>
+
+          {/* Submit */}
+          <div className="pt-4">
+            <button
+              type="submit"
+              className="w-full md:w-auto px-6 py-2 bg-white text-gray-900 font-semibold rounded-lg hover:bg-gray-200 transition"
+            >
+              Send Commission Request
+            </button>
+          </div>
+        </form>
+
+        {/* FOOTNOTE */}
+        <div className="text-gray-400 text-sm text-center pt-8">
+          <p>
+            Payments are currently handled via{" "}
+            <span className="text-white font-medium">PayPal</span>.  
+          </p>
+        </div>
+      </section>
+    </main>
+  );
+}
