@@ -26,7 +26,7 @@ export default function CommissionsPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("https://backend-8qjc.onrender.com", {
+      const res = await fetch("https://backend-8qjc.onrender.com/commissions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
