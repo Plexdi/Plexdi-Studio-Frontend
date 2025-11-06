@@ -25,10 +25,10 @@ const NAV_ITEMS: { href: string; label: string }[] = [
 ];
 
 const SOCIALS: { href: string; label: string; icon: React.ReactNode }[] = [
-  { href: "https://youtube.com",                label: "YouTube",   icon: <RiYoutubeFill size={22} /> },
-  { href: "https://instagram.com",              label: "Instagram", icon: <RiInstagramLine size={22} /> },
+  // { href: "https://youtube.com",                label: "YouTube",   icon: <RiYoutubeFill size={22} /> },
+  // { href: "https://instagram.com",              label: "Instagram", icon: <RiInstagramLine size={22} /> },
   { href: "https://www.behance.net/thanhngo23", label: "Behance",   icon: <RiBehanceLine size={22} /> },
-  { href: "https://x.com",                      label: "X",         icon: <RiTwitterXLine size={20} /> },
+  // { href: "https://x.com",                      label: "X",         icon: <RiTwitterXLine size={20} /> },
   { href: "https://discord.com",                label: "Discord",   icon: <RiDiscordFill size={22} /> },
   { href: "https://twitch.tv/Plexdi",           label: "Twitch",    icon: <RiTwitchFill size={22} /> },
 ];
