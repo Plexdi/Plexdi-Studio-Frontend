@@ -68,19 +68,17 @@ export default function PricingPage() {
             ]}
           />
 
-          {/* Stream / Creator Packs */}
-          <PricingCard
-            title="Stream / Creator Packs"
-            fromPrice="£60"
-            description="Bundles for creators who want a cohesive look across all their platforms."
-            items={[
-              "Banner + PFP + basic panel set",
-              "Designed as one unified identity",
-              "PSD/Source files available on request",
-              "Great for rebrands or fresh launches",
-              "Twitch/Emotes"
-            ]}
-          />
+            <PricingCard
+              title="Twitch Emotes"
+              fromPrice="£30"
+              description="Custom Twitch emotes drawn to match your brand, character, or streaming personality. Designed to be expressive, readable, and perfectly sized for Twitch upload."
+              items={[
+              "3 emote sizes included (28px, 56px, 112px)",
+              "Crisp PNG exports with transparent backgrounds",
+              "1 base style with small expression variations",
+              "Perfect for Twitch, YouTube, Discord emotes",
+              ]}
+            />
 
           {/* Logos */}
           <PricingCard
@@ -95,19 +93,22 @@ export default function PricingPage() {
             ]}
           />
 
-          {/* Portfolio / Web Design */}
+          {/* Stream / Creator Packs */}
           <PricingCard
-            title="Twitch Emotes"
-            fromPrice="£30"
-            description="Custom Twitch emotes drawn to match your brand, character, or streaming personality. Designed to be expressive, readable, and perfectly sized for Twitch upload."
+            title="Stream / Creator Packs"
+            fromPrice="£60"
+            description="Bundles for creators who want a cohesive look across all their platforms."
             items={[
-            "3 emote sizes included (28px, 56px, 112px)",
-            "Crisp PNG exports with transparent backgrounds",
-            "1 base style with small expression variations",
-            "Perfect for Twitch, YouTube, Discord emotes",
+              "Banner + PFP + basic panel set",
+              "Designed as one unified identity",
+              "PSD/Source files available on request",
+              "Great for rebrands or fresh launches",
+              "Twitch/Emotes"
             ]}
-
           />
+
+
+          {/* Portfolio / Web Design */}
         </section>
 
         {/* Notes / CTA */}

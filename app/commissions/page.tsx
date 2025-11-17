@@ -138,6 +138,7 @@ export default function CommissionsPage() {
               <option value="thumbnail">YouTube Thumbnail</option>
               <option value="pfp">Profile Picture</option>
               <option value="emotes">Twitch Emotes</option>
+              <option value="emotes">Stream / Creator Packs</option>
               <option value="custom">Custom Request</option>
             </select>
           </div>
