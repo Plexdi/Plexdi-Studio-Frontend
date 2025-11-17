@@ -14,6 +14,8 @@ export default function CommissionsPage() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [responseData, setResponseData] = useState<any | null>(null);
+  const [showResponse, setShowResponse] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -36,6 +38,10 @@ export default function CommissionsPage() {
 
       const data = await res.json();
       console.log("Commission submitted:", data);
+
+  // store response and show popup
+  setResponseData(data);
+  setShowResponse(true);
 
       toast.success("✅ Commission sent! I’ll reach out on Discord soon 🎨");
       setForm({ name: "", email: "", discord: "", type: "", details: "", refs: "" });
@@ -122,6 +128,7 @@ export default function CommissionsPage() {
               <option value="logo">Logo Design</option>
               <option value="thumbnail">YouTube Thumbnail</option>
               <option value="pfp">Profile Picture</option>
+              <option value="emotes">Twitch Emotes</option>
               <option value="custom">Custom Request</option>
             </select>
           </div>
@@ -180,6 +187,48 @@ export default function CommissionsPage() {
             </button>
           </div>
         </form>
+
+        {/* JSON response modal */}
+        {showResponse && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="fixed inset-0 z-50 flex items-center justify-center p-6"
+          >
+            <div
+              className="absolute inset-0 bg-black/70"
+              onClick={() => setShowResponse(false)}
+            />
+
+            <div className="relative max-w-3xl w-full bg-[#0b0b0b] border border-gray-700 rounded-xl p-6 shadow-lg text-sm text-gray-100">
+              <div className="flex items-start justify-between gap-4">
+                <h3 className="text-lg font-semibold">Server response</h3>
+                <button
+                  onClick={() => setShowResponse(false)}
+                  className="text-gray-300 hover:text-white"
+                  aria-label="Close response"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="mt-4 max-h-80 overflow-auto bg-[#060606] p-4 rounded-md border border-gray-800">
+                <pre className="whitespace-pre-wrap break-words text-xs">
+                  {JSON.stringify(responseData, null, 2)}
+                </pre>
+              </div>
+
+              <div className="mt-4 text-right">
+                <button
+                  onClick={() => setShowResponse(false)}
+                  className="px-4 py-2 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-200"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* FOOTNOTE */}
         <div className="text-gray-400 text-sm text-center pt-8">

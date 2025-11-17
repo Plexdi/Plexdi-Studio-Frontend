@@ -22,6 +22,7 @@ const NAV_ITEMS: { href: string; label: string }[] = [
   { href: "/Designs", label: "Designs" },
   { href: "/About", label: "About" },
   { href: "/commissions", label: "Commissions" },
+  { href: "/pricing", label: "Pricing" },
 ];
 
 const SOCIALS: { href: string; label: string; icon: React.ReactNode }[] = [
