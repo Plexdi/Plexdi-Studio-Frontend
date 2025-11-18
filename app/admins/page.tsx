@@ -14,6 +14,7 @@ type Commission = {
   type: string;      
   status: string;    
   createdAt: string; 
+  designer: string | null | undefined;
 };
 const mockProducts = [
   {
@@ -109,6 +110,7 @@ const fetchCommissions = async () => {
           type: prettifyLabel(raw.type),          // "banner" -> "Banner"
           status: prettifyLabel(raw.status),      // "in_progress" -> "In progress"
           createdAt: raw.created_at,              // keep as-is for now
+          designer: raw.designer,
         }))
       : [];
 
@@ -362,6 +364,7 @@ function CommissionsSection({
               <th className="px-4 py-3 text-left">Status</th>
               <th className="px-4 py-3 text-left">Created</th>
               <th className="px-4 py-3 text-left">Actions</th>
+              <th className="px-4 py-3 text-left">Assigned</th>
             </tr>
           </thead>
           <tbody>
@@ -402,6 +405,7 @@ function CommissionsSection({
                     Delete
                   </button>
                 </td>
+                <td className="px-4 py-3 text-gray-300">{c.designer || "Unassigned"}</td>
               </tr>
             ))}
           </tbody>
