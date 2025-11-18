@@ -8,12 +8,13 @@ type Tab = "overview" | "commissions" | "products";
 type Commission = {
   id: string;
   name: string;
-  type: string;
+  email: string;
   discord: string;
-  status: string;
-  createdAt: string;
+  details: string;
+  type: string;      
+  status: string;    
+  createdAt: string; 
 };
-
 const mockProducts = [
   {
     id: "P-001",
@@ -53,36 +54,120 @@ const mockProducts = [
   },
 ];
 
+function prettifyLabel(value: string | null | undefined): string{
+    if (!value) return "";
+      return value
+        .split("_")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+}
+
 export default function AdminPage() {
   const [tab, setTab] = useState<Tab>("overview");
   // start empty and load from backend on mount
   const [commissions, setCommissions] = useState<Commission[]>([]);
   const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
-  const fetchCommissions = async () => {
+const fetchCommissions = async () => {
+  try {
+    setFetchError(null);
+    setLoading(true);
+    console.log("[AdminPage] fetchCommissions: starting request");
+
+    const res = await fetch("https://backend-8qjc.onrender.com/commissions", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    console.log(`[AdminPage] fetchCommissions: response status ${res.status}`);
+
+    let data: any = null;
     try {
-      setLoading(true);
+      data = await res.json();
+      console.log("[AdminPage] fetchCommissions: parsed data", data);
+    } catch (parseErr) {
+      console.error("[AdminPage] fetchCommissions: failed to parse JSON", parseErr);
+      throw new Error("Invalid JSON response from server");
+    }
 
-      const res = await fetch("https://backend-8qjc.onrender.com/commissions", {
-        method: "GET",
+    if (!res.ok) {
+      const msg = data?.message || `Server error: ${res.status}`;
+      toast.error(msg);
+      setFetchError(msg);
+      throw new Error(msg);
+    }
+
+    // 🧠 Normalize DB shape -> UI shape
+    const mapped: Commission[] = Array.isArray(data)
+      ? data.map((raw: any) => ({
+          id: raw.id,
+          name: raw.name,
+          email: raw.email,
+          discord: raw.discord,
+          details: raw.details,
+          type: prettifyLabel(raw.type),          // "banner" -> "Banner"
+          status: prettifyLabel(raw.status),      // "in_progress" -> "In progress"
+          createdAt: raw.created_at,              // keep as-is for now
+        }))
+      : [];
+
+    setCommissions(mapped);
+    console.log(
+      "[AdminPage] fetchCommissions: commissions set, count =",
+      mapped.length
+    );
+    toast.success("Commissions updated");
+  } catch (err: any) {
+    console.error("[AdminPage] fetchCommissions: Error:", err);
+    const msg = err?.message || "Failed to load commissions";
+    setFetchError(msg);
+    toast.error(msg);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  // update commission status (optimistic). Replace placeholder endpoint when ready.
+  const updateCommissionStatus = async (id: string, uiStatus: string) => {
+    // optimistic UI update
+    setCommissions((prev) => prev.map((c) => (c.id === id ? { ...c, status: uiStatus } : c)));
+    let backendStatus = uiStatus; 
+    
+    if (uiStatus === "Completed") backendStatus = "completed";
+    if (uiStatus === "In Progress") backendStatus = "in_progress";
+    if (uiStatus === "Queued") backendStatus = "queued";
+
+    try {
+      // TODO: wire up to your API endpoint, e.g. PATCH /commissions/:id
+      await fetch(`https://backend-8qjc.onrender.com/commissions/${id}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: backendStatus }),
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        toast.error(data.message || "Something went wrong loading commissions");
-        throw new Error(`Server error: ${res.status}`);
-      }
-
-      // expect data to be an array of commissions
-      setCommissions(data);
-      toast.success("Commissions updated");
+      toast.success("Status updated");
     } catch (err) {
-      console.error("Error: ", err);
-      toast.error("Failed to load commissions");
-    } finally {
-      setLoading(false);
+      console.error("Failed to update status", err);
+      toast.error("Failed to update status (offline)");
+      // could revert optimistic change here if desired
+    }
+  };
+
+  // delete commission (optimistic). Replace placeholder endpoint when ready.
+  const deleteCommission = async (id: string) => {
+    // optimistic remove
+    setCommissions((prev) => prev.filter((c) => c.id !== id));
+
+    try {
+      // TODO: wire up to your API endpoint, e.g. DELETE /commissions/:id
+      await fetch(`https://backend-8qjc.onrender.com/commissions/${id}`, {
+        method: "DELETE",
+      });
+      toast.success("Commission deleted");
+    } catch (err) {
+      console.error("Failed to delete commission", err);
+      toast.error("Failed to delete commission (offline)");
+      // optionally re-fetch or revert UI
     }
   };
 
@@ -112,6 +197,13 @@ export default function AdminPage() {
           </span>
         </header>
 
+        {/* fetch error banner */}
+        {fetchError && (
+          <div className="rounded-md border border-red-600/40 bg-red-600/5 px-4 py-2 text-sm text-red-300">
+            Error loading commissions: {fetchError}. Check the browser console for details.
+          </div>
+        )}
+
         {/* Tabs */}
         <nav className="flex gap-2 rounded-full bg-[#181818] border border-gray-800 p-1 w-full sm:w-auto">
           <TabButton label="Overview" value="overview" tab={tab} setTab={setTab} />
@@ -126,6 +218,8 @@ export default function AdminPage() {
             commissions={commissions}
             onRefresh={fetchCommissions}
             loading={loading}
+            onUpdateStatus={updateCommissionStatus}
+            onDelete={deleteCommission}
           />
         )}
         {tab === "products" && <ProductsSection />}
@@ -163,7 +257,7 @@ function TabButton({
 
 function OverviewSection({ commissions }: { commissions: Commission[] }) {
   const totalCommissions = commissions.length;
-  const pending = commissions.filter((c) => c.status === "Pending").length;
+  const queued = commissions.filter((c) => c.status === "Queued").length;
   const inProgress = commissions.filter((c) => c.status === "In Progress").length;
   const completed = commissions.filter((c) => c.status === "Completed").length;
 
@@ -172,7 +266,7 @@ function OverviewSection({ commissions }: { commissions: Commission[] }) {
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Total Commissions" value={totalCommissions.toString()} />
-        <StatCard label="Pending" value={pending.toString()} accent="yellow" />
+        <StatCard label="Queued" value={queued.toString()} accent="yellow" />
         <StatCard label="In Progress" value={inProgress.toString()} accent="blue" />
         <StatCard label="Completed" value={completed.toString()} accent="green" />
       </div>
@@ -230,10 +324,14 @@ function CommissionsSection({
   commissions,
   onRefresh,
   loading,
+  onUpdateStatus,
+  onDelete,
 }: {
   commissions: Commission[];
   onRefresh: () => void;
   loading: boolean;
+  onUpdateStatus: (id: string, status: string) => void;
+  onDelete: (id: string) => void;
 }) {
   return (
     <section className="space-y-4">
@@ -263,6 +361,7 @@ function CommissionsSection({
               <th className="px-4 py-3 text-left">Discord</th>
               <th className="px-4 py-3 text-left">Status</th>
               <th className="px-4 py-3 text-left">Created</th>
+              <th className="px-4 py-3 text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -277,10 +376,31 @@ function CommissionsSection({
                 <td className="px-4 py-3 text-gray-200">{c.type}</td>
                 <td className="px-4 py-3 text-gray-300">{c.discord}</td>
                 <td className="px-4 py-3">
-                  <StatusPill status={c.status} />
+                  <div className="flex items-center gap-3">
+                    <select
+                      aria-label={`Change status for ${c.id}`}
+                      value={c.status}
+                      onChange={(e) => onUpdateStatus(c.id, e.target.value)}
+                      className="rounded-md bg-[#121212] border border-gray-700 text-xs px-2 py-1 text-gray-100"
+                    >
+                      <option value="Queued">Queued</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Completed">Completed</option>
+                    </select>
+                    <StatusPill status={c.status} />
+                  </div>
                 </td>
                 <td className="px-4 py-3 text-gray-400 text-xs">
                   {c.createdAt}
+                </td>
+                <td className="px-4 py-3">
+                  <button
+                    type="button"
+                    onClick={() => onDelete(c.id)}
+                    className="rounded-lg border border-red-600/50 bg-red-600/10 px-3 py-1 text-xs text-red-300 hover:bg-red-600/20"
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}
@@ -371,7 +491,7 @@ function StatCard({
 function StatusPill({ status }: { status: string }) {
   let color = "bg-gray-500/20 text-gray-300 border-gray-600/40";
 
-  if (status === "Pending") {
+  if (status === "Queued") {
     color = "bg-yellow-500/10 text-yellow-300 border-yellow-500/40";
   } else if (status === "In Progress") {
     color = "bg-blue-500/10 text-blue-300 border-blue-500/40";
