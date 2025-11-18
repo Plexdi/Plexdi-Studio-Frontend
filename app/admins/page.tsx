@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
 type Tab = "overview" | "commissions" | "products";
@@ -13,33 +13,6 @@ type Commission = {
   status: string;
   createdAt: string;
 };
-
-const mockCommissions: Commission[] = [
-  {
-    id: "C-001",
-    name: "Mogi",
-    type: "Banner",
-    discord: "mogi#1234",
-    status: "Pending",
-    createdAt: "2025-11-18",
-  },
-  {
-    id: "C-002",
-    name: "Hitaka",
-    type: "Emotes",
-    discord: "hitaka#5678",
-    status: "In Progress",
-    createdAt: "2025-11-17",
-  },
-  {
-    id: "C-003",
-    name: "Test Client",
-    type: "Logo",
-    discord: "client#0001",
-    status: "Completed",
-    createdAt: "2025-11-15",
-  },
-];
 
 const mockProducts = [
   {
@@ -82,7 +55,8 @@ const mockProducts = [
 
 export default function AdminPage() {
   const [tab, setTab] = useState<Tab>("overview");
-  const [commissions, setCommissions] = useState<Commission[]>(mockCommissions);
+  // start empty and load from backend on mount
+  const [commissions, setCommissions] = useState<Commission[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchCommissions = async () => {
@@ -111,6 +85,12 @@ export default function AdminPage() {
       setLoading(false);
     }
   };
+
+  // fetch commissions when the page mounts
+  useEffect(() => {
+    fetchCommissions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <main className="min-h-screen bg-[#111] text-gray-100 px-6 md:px-12 py-16">
