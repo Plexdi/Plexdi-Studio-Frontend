@@ -1,36 +1,188 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# **Plexdi Studio — Frontend**
 
-## Getting Started
+A modern, minimal, animation-driven portfolio, store, and commissions platform for **Plexdi Studio** — built with **Next.js, TypeScript, Tailwind CSS**, and a clean UI inspired by high-end design studios.
 
-First, run the development server:
+This repository contains the **frontend** of the Plexdi Studio website:
+
+* Portfolio (banner showcase carousel)
+* Store (digital design packs)
+* Commissions page (frontend form → backend email API)
+* About page
+* Custom admin login
+* Internal admin dashboard
+* Responsive nav + smooth scroll animations
+* Fully componentized & future-proof
+
+---
+
+## 🚀 **Tech Stack**
+
+**Framework:**
+
+* Next.js 14 (App Router)
+* TypeScript
+* React Server Components + Client Components
+
+**Styling:**
+
+* Tailwind CSS
+* Custom animations (Framer-Motion inspired micro-interactions)
+
+**UI Components:**
+
+* Hand-crafted components
+* ShadCN (optional, used lightly)
+* Custom carousel for portfolio banners
+
+**State & Utilities:**
+
+* LocalStorage (admin token)
+* React Hot Toast (UI messages)
+* Fetch API for backend communication
+
+---
+
+## 🔧 **Features**
+
+### ⭐ **Public Pages**
+
+* **Landing page** with scrolling gallery animation
+
+* **Portfolio page** with full-width animated carousel (1500×500 banners)
+
+* **Shop page** (static product list until backend is connected)
+
+* **Commissions page**
+
+  * Form with validation
+  * Sends data to backend API
+  * Receives backend response & displays toast messages
+
+* **About page** with sections for “About Me” and “About Plexdi Studio”
+
+---
+
+### 🔐 **Admin System**
+
+The site includes a lightweight **token-based admin authentication** (no email/password):
+
+* `/adminsLogin` → enter secret admin token
+* Stores token in `localStorage`
+* `/admins` panel is locked unless token matches
+* No database auth needed yet (simple but secure for solo use)
+
+### 📊 **Admin Dashboard**
+
+Inside `/admins`:
+
+* Overview metrics (Queued, In Progress, Completed)
+* Full commissions table
+* Status update controls
+* Delete functionality
+* Create commission (mock or real backend)
+* Product list (future: editable)
+
+---
+
+## 🗂️ **Project Structure**
+
+```
+app/
+ ├─ page.tsx                 # Home
+ ├─ portfolio/               # Carousel showcase
+ ├─ shop/                    # Product display
+ ├─ commissions/             # Form + backend submission
+ ├─ about/                   # About Me + Studio info
+ ├─ adminsLogin/             # Admin login page
+ └─ admins/                  # Admin dashboard
+
+components/
+ ├─ Navbar.tsx
+ ├─ Footer.tsx
+ ├─ ui/
+ │   ├─ carousel.tsx         # Custom 3:1 banner carousel
+ │   └─ ... other UI parts
+
+public/
+ └─ portfolio/banners/       # 1500x500 banner images
+
+```
+
+---
+
+## 🔌 **Environment Variables**
+
+Create a `.env.local` file:
+
+```
+NEXT_PUBLIC_ADMIN_TOKEN=your-secret-token-here
+NEXT_PUBLIC_BACKEND_URL=https://your-backend.com
+```
+
+Used for:
+
+* Protecting admin panel
+* Sending commission requests
+
+---
+
+## ▶️ **Running the Project**
+
+### **Install dependencies**
+
+```bash
+npm install
+```
+
+### **Start dev server**
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Frontend will run at:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🌐 **Deployment**
 
-To learn more about Next.js, take a look at the following resources:
+The project is optimized for **Vercel**:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+* Zero-config build
+* Supports Next.js App Router natively
+* Environment variables included through settings
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🛠️ **Backend Integration**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The frontend communicates with your Go backend:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+* `POST /commissions` → submits commission form
+* `GET /commissions` → fetch admin list
+* `PATCH /commissions/:id` → update status
+* `DELETE /commissions/:id` → delete request
+
+JSON responses are displayed to users via toast notifications.
+
+---
+
+## 📈 **Future Additions**
+
+* Real payment integration (Stripe or PayPal SDK)
+* Editable shop items from admin panel
+* Designer assignment system
+* More portfolio categories (emotes, logos, thumbnails)
+* Automatic email notifications on status change
+
+---
+
+## ✨ **Author**
+
+**Plexdi** —
+Designer • Developer • Content creator
+Focused on building clean visuals, minimal experiences, and scalable systems.
