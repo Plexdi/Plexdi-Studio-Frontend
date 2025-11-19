@@ -11,11 +11,12 @@ type Commission = {
   email: string;
   discord: string;
   details: string;
-  type: string;      
-  status: string;    
-  createdAt: string; 
+  type: string;
+  status: string;
+  createdAt: string;
   designers: string | null | undefined;
 };
+
 const mockProducts = [
   {
     id: "P-001",
@@ -55,93 +56,138 @@ const mockProducts = [
   },
 ];
 
-function prettifyLabel(value: string | null | undefined): string{
-    if (!value) return "";
-      return value
-        .split("_")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ");
+function prettifyLabel(value: string | null | undefined): string {
+  if (!value) return "";
+  return value
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 }
 
+/* ------------------------------------------------------------------ */
+/* 1) SHELL: only handles token check + gating                         */
+/* ------------------------------------------------------------------ */
+
 export default function AdminPage() {
+  const [allowed, setAllowed] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    const expected = process.env.NEXT_PUBLIC_ADMIN_TOKEN;
+
+    if (!expected) {
+      console.error("Admin token missing in environment variables.");
+      window.location.href = "/adminsLogin";
+      return;
+    }
+
+    const stored =
+      typeof window !== "undefined"
+        ? localStorage.getItem("adminToken")
+        : null;
+
+    if (!stored || stored !== expected) {
+      localStorage.removeItem("adminToken");
+      window.location.href = "/adminsLogin";
+      return;
+    }
+
+    setAllowed(true);
+    setChecking(false);
+  }, []);
+
+  if (checking) return null;
+  if (!allowed) return null;
+
+  // Once allowed is true, render the real admin content
+  return <AdminContent />;
+}
+
+/* ------------------------------------------------------------------ */
+/* 2) CONTENT: all the actual admin UI + data fetching                 */
+/* ------------------------------------------------------------------ */
+
+function AdminContent() {
   const [tab, setTab] = useState<Tab>("overview");
-  // start empty and load from backend on mount
   const [commissions, setCommissions] = useState<Commission[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
-const fetchCommissions = async () => {
-  try {
-    setFetchError(null);
-    setLoading(true);
-    console.log("[AdminPage] fetchCommissions: starting request");
-
-    const res = await fetch("https://backend-8qjc.onrender.com/commissions", {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
-
-    console.log(`[AdminPage] fetchCommissions: response status ${res.status}`);
-
-    let data: any = null;
+  const fetchCommissions = async () => {
     try {
-      data = await res.json();
-      console.log("[AdminPage] fetchCommissions: parsed data", data);
-    } catch (parseErr) {
-      console.error("[AdminPage] fetchCommissions: failed to parse JSON", parseErr);
-      throw new Error("Invalid JSON response from server");
-    }
+      setFetchError(null);
+      setLoading(true);
+      console.log("[AdminPage] fetchCommissions: starting request");
 
-    if (!res.ok) {
-      const msg = data?.message || `Server error: ${res.status}`;
-      toast.error(msg);
+      const res = await fetch("https://backend-8qjc.onrender.com/commissions", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      console.log(
+        `[AdminPage] fetchCommissions: response status ${res.status}`
+      );
+
+      let data: any = null;
+      try {
+        data = await res.json();
+        console.log("[AdminPage] fetchCommissions: parsed data", data);
+      } catch (parseErr) {
+        console.error(
+          "[AdminPage] fetchCommissions: failed to parse JSON",
+          parseErr
+        );
+        throw new Error("Invalid JSON response from server");
+      }
+
+      if (!res.ok) {
+        const msg = data?.message || `Server error: ${res.status}`;
+        toast.error(msg);
+        setFetchError(msg);
+        throw new Error(msg);
+      }
+
+      const mapped: Commission[] = Array.isArray(data)
+        ? data.map((raw: any) => ({
+            id: String(raw.id),
+            name: raw.name,
+            email: raw.email,
+            discord: raw.discord,
+            details: raw.details,
+            type: prettifyLabel(raw.type), // "banner" -> "Banner"
+            status: prettifyLabel(raw.status), // "in_progress" -> "In Progress"
+            createdAt: raw.created_at,
+            designers: raw.designers,
+          }))
+        : [];
+
+      setCommissions(mapped);
+      console.log(
+        "[AdminPage] fetchCommissions: commissions set, count =",
+        mapped.length
+      );
+      toast.success("Commissions updated");
+    } catch (err: any) {
+      console.error("[AdminPage] fetchCommissions: Error:", err);
+      const msg = err?.message || "Failed to load commissions";
       setFetchError(msg);
-      throw new Error(msg);
+      toast.error(msg);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    // 🧠 Normalize DB shape -> UI shape
-    const mapped: Commission[] = Array.isArray(data)
-      ? data.map((raw: any) => ({
-          id: raw.id,
-          name: raw.name,
-          email: raw.email,
-          discord: raw.discord,
-          details: raw.details,
-          type: prettifyLabel(raw.type),          // "banner" -> "Banner"
-          status: prettifyLabel(raw.status),      // "in_progress" -> "In progress"
-          createdAt: raw.created_at,              // keep as-is for now
-          designers: raw.designers,
-        }))
-      : [];
-
-    setCommissions(mapped);
-    console.log(
-      "[AdminPage] fetchCommissions: commissions set, count =",
-      mapped.length
-    );
-    toast.success("Commissions updated");
-  } catch (err: any) {
-    console.error("[AdminPage] fetchCommissions: Error:", err);
-    const msg = err?.message || "Failed to load commissions";
-    setFetchError(msg);
-    toast.error(msg);
-  } finally {
-    setLoading(false);
-  }
-};
-
-  // update commission status (optimistic). Replace placeholder endpoint when ready.
   const updateCommissionStatus = async (id: string, uiStatus: string) => {
-    // optimistic UI update
-    setCommissions((prev) => prev.map((c) => (c.id === id ? { ...c, status: uiStatus } : c)));
-    let backendStatus = uiStatus; 
-    
+    setCommissions((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, status: uiStatus } : c))
+    );
+
+    let backendStatus = uiStatus;
     if (uiStatus === "Completed") backendStatus = "completed";
     if (uiStatus === "In Progress") backendStatus = "in_progress";
     if (uiStatus === "Queued") backendStatus = "queued";
 
     try {
-      // TODO: wire up to your API endpoint, e.g. PATCH /commissions/:id
       await fetch(`https://backend-8qjc.onrender.com/commissions/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -151,17 +197,13 @@ const fetchCommissions = async () => {
     } catch (err) {
       console.error("Failed to update status", err);
       toast.error("Failed to update status (offline)");
-      // could revert optimistic change here if desired
     }
   };
 
-  // delete commission (optimistic). Replace placeholder endpoint when ready.
   const deleteCommission = async (id: string) => {
-    // optimistic remove
     setCommissions((prev) => prev.filter((c) => c.id !== id));
 
     try {
-      // TODO: wire up to your API endpoint, e.g. DELETE /commissions/:id
       await fetch(`https://backend-8qjc.onrender.com/commissions/${id}`, {
         method: "DELETE",
       });
@@ -169,11 +211,80 @@ const fetchCommissions = async () => {
     } catch (err) {
       console.error("Failed to delete commission", err);
       toast.error("Failed to delete commission (offline)");
-      // optionally re-fetch or revert UI
     }
   };
 
-  // fetch commissions when the page mounts
+  const createCommission = async (payload: {
+    name: string;
+    email?: string;
+    discord?: string;
+    type?: string;
+    details?: string;
+  }) => {
+    const optimisticId = `tmp-${Date.now()}`;
+    const now = new Date().toISOString().split("T")[0];
+    const optimisticItem: Commission = {
+      id: optimisticId,
+      name: payload.name,
+      email: payload.email || "",
+      discord: payload.discord || "",
+      details: payload.details || "",
+      type: payload.type ? prettifyLabel(payload.type) : "General",
+      status: "Queued",
+      createdAt: now,
+      designers: null,
+    };
+
+    setCommissions((prev) => [optimisticItem, ...prev]);
+
+    try {
+      const backendBody = {
+        name: payload.name,
+        email: payload.email,
+        discord: payload.discord,
+        details: payload.details,
+        type: payload.type || "general",
+        status: "queued",
+      };
+
+      const res = await fetch("https://backend-8qjc.onrender.com/commissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(backendBody),
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        throw new Error(
+          data?.message || `Server error: ${res?.status || "unknown"}`
+        );
+      }
+
+      const created: Commission = {
+        id: String(data.id ?? data._id ?? optimisticId),
+        name: data.name ?? optimisticItem.name,
+        email: data.email ?? optimisticItem.email,
+        discord: data.discord ?? optimisticItem.discord,
+        details: data.details ?? optimisticItem.details,
+        type: prettifyLabel(data.type ?? backendBody.type),
+        status: prettifyLabel(data.status ?? "queued"),
+        createdAt: data.created_at ?? data.createdAt ?? now,
+        designers: data.designers ?? null,
+      };
+
+      setCommissions((prev) =>
+        prev.map((c) => (c.id === optimisticId ? created : c))
+      );
+      toast.success("Commission created");
+    } catch (err: any) {
+      console.error("createCommission failed", err);
+      toast.error("Failed to create commission");
+      setCommissions((prev) => prev.filter((c) => c.id !== optimisticId));
+    }
+  };
+
+  // fetch on mount
   useEffect(() => {
     fetchCommissions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -189,9 +300,9 @@ const fetchCommissions = async () => {
               Admin Panel
             </h1>
             <p className="mt-2 text-sm text-gray-400 max-w-xl">
-              Internal view for managing commissions and shop products.
-              This is a local-only admin panel for now — token-based access
-              and backend integration can be wired in later.
+              Internal view for managing commissions and shop products. This is
+              a local-only admin panel for now — token-based access and backend
+              integration can be wired in later.
             </p>
           </div>
           <span className="inline-flex items-center rounded-full border border-gray-700 bg-[#181818] px-3 py-1 text-xs text-gray-400">
@@ -202,14 +313,20 @@ const fetchCommissions = async () => {
         {/* fetch error banner */}
         {fetchError && (
           <div className="rounded-md border border-red-600/40 bg-red-600/5 px-4 py-2 text-sm text-red-300">
-            Error loading commissions: {fetchError}. Check the browser console for details.
+            Error loading commissions: {fetchError}. Check the browser console
+            for details.
           </div>
         )}
 
         {/* Tabs */}
         <nav className="flex gap-2 rounded-full bg-[#181818] border border-gray-800 p-1 w-full sm:w-auto">
           <TabButton label="Overview" value="overview" tab={tab} setTab={setTab} />
-          <TabButton label="Commissions" value="commissions" tab={tab} setTab={setTab} />
+          <TabButton
+            label="Commissions"
+            value="commissions"
+            tab={tab}
+            setTab={setTab}
+          />
           <TabButton label="Products" value="products" tab={tab} setTab={setTab} />
         </nav>
 
@@ -222,6 +339,7 @@ const fetchCommissions = async () => {
             loading={loading}
             onUpdateStatus={updateCommissionStatus}
             onDelete={deleteCommission}
+            onCreateCommission={createCommission}
           />
         )}
         {tab === "products" && <ProductsSection />}
@@ -229,6 +347,10 @@ const fetchCommissions = async () => {
     </main>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/* CHILD COMPONENTS (unchanged logic)                                 */
+/* ------------------------------------------------------------------ */
 
 function TabButton({
   label,
@@ -260,20 +382,23 @@ function TabButton({
 function OverviewSection({ commissions }: { commissions: Commission[] }) {
   const totalCommissions = commissions.length;
   const queued = commissions.filter((c) => c.status === "Queued").length;
-  const inProgress = commissions.filter((c) => c.status === "In Progress").length;
+  const inProgress = commissions.filter((c) => c.status === "In Progress")
+    .length;
   const completed = commissions.filter((c) => c.status === "Completed").length;
 
   return (
     <section className="space-y-10">
-      {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Total Commissions" value={totalCommissions.toString()} />
         <StatCard label="Queued" value={queued.toString()} accent="yellow" />
-        <StatCard label="In Progress" value={inProgress.toString()} accent="blue" />
+        <StatCard
+          label="In Progress"
+          value={inProgress.toString()}
+          accent="blue"
+        />
         <StatCard label="Completed" value={completed.toString()} accent="green" />
       </div>
 
-      {/* Latest activity */}
       <div className="grid gap-6 lg:grid-cols-[1.4fr,1fr]">
         <div className="rounded-2xl border border-gray-800 bg-[#181818] p-5">
           <h2 className="text-base font-semibold text-white mb-3">
@@ -306,7 +431,8 @@ function OverviewSection({ commissions }: { commissions: Commission[] }) {
           </h2>
           <p className="text-sm text-gray-400 leading-relaxed">
             This panel is currently using mock data by default. Use the Refresh
-            button in the Commissions tab to pull real data from your backend once it’s wired up.
+            button in the Commissions tab to pull real data from your backend
+            once it’s wired up.
           </p>
           <p className="mt-3 text-xs text-gray-500">
             You can also extend this later with:
@@ -328,18 +454,57 @@ function CommissionsSection({
   loading,
   onUpdateStatus,
   onDelete,
+  onCreateCommission,
 }: {
   commissions: Commission[];
   onRefresh: () => void;
   loading: boolean;
   onUpdateStatus: (id: string, status: string) => void;
   onDelete: (id: string) => void;
+  onCreateCommission?: (payload: {
+    name: string;
+    email?: string;
+    discord?: string;
+    type?: string;
+    details?: string;
+  }) => void;
 }) {
+  const [showForm, setShowForm] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [discord, setDiscord] = useState("");
+  const [type, setType] = useState("banner");
+  const [details, setDetails] = useState("");
+
+  const submit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!name.trim()) {
+      toast.error("Name is required");
+      return;
+    }
+    await onCreateCommission?.({ name, email, discord, type, details });
+    setName("");
+    setEmail("");
+    setDiscord("");
+    setType("banner");
+    setDetails("");
+    setShowForm(false);
+  };
+
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between gap-2">
         <h2 className="text-xl font-semibold text-white">Commissions</h2>
         <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowForm((s) => !s)}
+              className="rounded-lg bg-white text-black text-xs font-medium px-3 py-1 hover:bg-gray-200 transition"
+            >
+              {showForm ? "Cancel" : "+ New Commission"}
+            </button>
+          </div>
           <span className="text-xs text-gray-500">
             Showing {commissions.length} requests
           </span>
@@ -353,6 +518,68 @@ function CommissionsSection({
           </button>
         </div>
       </div>
+
+      {showForm && (
+        <form
+          onSubmit={submit}
+          className="rounded-2xl border border-gray-800 bg-[#181818] p-4 space-y-3"
+        >
+          <div className="grid gap-2 md:grid-cols-3">
+            <input
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Client name"
+              className="rounded-md bg-[#121212] border border-gray-700 px-2 py-1 text-sm text-gray-100"
+            />
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email (optional)"
+              className="rounded-md bg-[#121212] border border-gray-700 px-2 py-1 text-sm text-gray-100"
+            />
+            <input
+              value={discord}
+              onChange={(e) => setDiscord(e.target.value)}
+              placeholder="Discord (optional)"
+              className="rounded-md bg-[#121212] border border-gray-700 px-2 py-1 text-sm text-gray-100"
+            />
+          </div>
+          <div className="grid gap-2 md:grid-cols-2">
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+              className="rounded-md bg-[#121212] border border-gray-700 px-2 py-1 text-sm text-gray-100"
+            >
+              <option value="banner">Banner</option>
+              <option value="emotes">Emotes</option>
+              <option value="logo">Logo</option>
+              <option value="thumbnail">Thumbnail</option>
+            </select>
+            <input
+              value={details}
+              onChange={(e) => setDetails(e.target.value)}
+              placeholder="Short details (optional)"
+              className="rounded-md bg-[#121212] border border-gray-700 px-2 py-1 text-sm text-gray-100"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="submit"
+              className="rounded-lg bg-emerald-600 px-3 py-1 text-xs text-white hover:bg-emerald-500"
+            >
+              Create
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowForm(false)}
+              className="rounded-lg border border-gray-700 px-3 py-1 text-xs text-gray-200"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
 
       <div className="overflow-x-auto rounded-2xl border border-gray-800 bg-[#181818]">
         <table className="min-w-full text-sm">
@@ -405,7 +632,9 @@ function CommissionsSection({
                     Delete
                   </button>
                 </td>
-                <td className="px-4 py-3 text-gray-300">{c.designers || "Unassigned"}</td>
+                <td className="px-4 py-3 text-gray-300">
+                  {c.designers || "Unassigned"}
+                </td>
               </tr>
             ))}
           </tbody>
