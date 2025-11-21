@@ -119,7 +119,7 @@ function AdminContent() {
       setLoading(true);
       console.log("[AdminPage] fetchCommissions: starting request");
 
-      const res = await fetch("https://backend-8qjc.onrender.com/commissions", {
+      const res = await fetch("https://plexdistudiobackend-1020b5dfc70b.herokuapp.com/commissions", {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
@@ -188,7 +188,7 @@ function AdminContent() {
     if (uiStatus === "Queued") backendStatus = "queued";
 
     try {
-      await fetch(`https://backend-8qjc.onrender.com/commissions/${id}`, {
+      await fetch(`https://plexdistudiobackend-1020b5dfc70b.herokuapp.com/commissions/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: backendStatus }),
@@ -204,7 +204,7 @@ function AdminContent() {
     setCommissions((prev) => prev.filter((c) => c.id !== id));
 
     try {
-      await fetch(`https://backend-8qjc.onrender.com/commissions/${id}`, {
+      await fetch(`https://plexdistudiobackend-1020b5dfc70b.herokuapp.com/commissions/${id}`, {
         method: "DELETE",
       });
       toast.success("Commission deleted");
@@ -247,7 +247,7 @@ function AdminContent() {
         status: "queued",
       };
 
-      const res = await fetch("https://backend-8qjc.onrender.com/commissions", {
+      const res = await fetch("https://plexdistudiobackend-1020b5dfc70b.herokuapp.com/commissions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(backendBody),
