@@ -31,7 +31,7 @@ const SOCIALS: { href: string; label: string; icon: React.ReactNode }[] = [
   { href: "https://www.behance.net/thanhngo23", label: "Behance",   icon: <RiBehanceLine size={22} /> },
   // { href: "https://x.com",                      label: "X",         icon: <RiTwitterXLine size={20} /> },
   { href: "https://discord.com",                label: "Discord",   icon: <RiDiscordFill size={22} /> },
-  { href: "https://twitch.tv/Plexdi",           label: "Twitch",    icon: <RiTwitchFill size={22} /> },
+  // { href: "https://twitch.tv/Plexdi",           label: "Twitch",    icon: <RiTwitchFill size={22} /> },
 ];
 
 export default function Navbar() {
