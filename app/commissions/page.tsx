@@ -217,14 +217,6 @@ export default function CommissionsPage() {
             </button>
           </div>
         </form>
-
-        {/* FOOTNOTE */}
-        <div className="text-gray-400 text-sm text-center pt-8">
-          <p>
-            Payments are currently handled via{" "}
-            <span className="text-white font-medium">PayPal</span>.  
-          </p>
-        </div>
       </section>
     </main>
   );
