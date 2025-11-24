@@ -26,8 +26,9 @@ export default function CommissionsPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("https://plexdistudiobackend-1020b5dfc70b.herokuapp.com/commissions", {
-        method: "POST",
+      //const res = await fetch("https://plexdistudiobackend-1020b5dfc70b.herokuapp.com/commissions", {
+      const res = await fetch("http://localhost:10000/commissions", {
+      method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
@@ -39,10 +40,29 @@ export default function CommissionsPage() {
         toast.error(data.message || "❌ Something went wrong.");
         throw new Error(`Server error: ${res.status}`);
       }
+      const commissionId = data.id;
 
       // Display backend's message directly
       toast.success(data.message || "Commission submitted!");
-      
+
+      const PaymentRes = await fetch("http://localhost:10000/payments/createCheckoutSession", {
+        method: "POST", 
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          item : form.type,
+          amount: 1,
+          CommissionID : commissionId
+        })
+      })
+
+      const paymentData = await PaymentRes.json();
+      if (!PaymentRes.ok) {
+        toast.error(paymentData.message || "❌ Payment initiation failed.");
+        throw new Error(`Payment server error: ${PaymentRes.status}`);
+      }
+      // Redirect to payment URL
+      window.location.href = paymentData.url;
+
       // Reset
       setForm({
         name: "",
@@ -133,17 +153,17 @@ export default function CommissionsPage() {
               className="w-full bg-[#111] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-gray-400"
             >
               <option value="">Select type</option>
-              <option value="banner">Banner Design</option>
-              <option value="logo">Logo Design</option>
-              <option value="thumbnail">YouTube Thumbnail</option>
-              <option value="pfp">Profile Picture</option>
-              <option value="emotes">Twitch Emotes</option>
-              <option value="emotes">Stream / Creator Packs</option>
+              <option value="Banner">Banner Design</option>
+              <option value="Logos">Logo Design</option>
+              <option value="Thumbnail">YouTube Thumbnail</option>
+              <option value="PFP">Profile Picture</option>
+              <option value="Twitch Emotes">Twitch Emotes</option>
+              <option value="Streamer Packs">Stream / Creator Packs</option>
               <option value="custom">Custom Request</option>
             </select>
           </div>
           {/* Conditional input: only show when 'banner' is chosen */}
-          {form.type === "banner" && (
+          {form.type === "Banner  " && (
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-1">
                 Platform for Banner
