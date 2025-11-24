@@ -26,8 +26,8 @@ export default function CommissionsPage() {
     setLoading(true);
 
     try {
-      //const res = await fetch("https://plexdistudiobackend-1020b5dfc70b.herokuapp.com/commissions", {
-      const res = await fetch("http://localhost:10000/commissions", {
+      const res = await fetch("https://plexdistudiobackend-1020b5dfc70b.herokuapp.com/commissions", {
+      // const res = await fetch("http://localhost:10000/commissions", {
       method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -45,7 +45,7 @@ export default function CommissionsPage() {
       // Display backend's message directly
       toast.success(data.message || "Commission submitted!");
 
-      const PaymentRes = await fetch("http://localhost:10000/payments/createCheckoutSession", {
+      const PaymentRes = await fetch("https://plexdistudiobackend-1020b5dfc70b.herokuapp.com/payments/createCheckoutSession", {
         method: "POST", 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
