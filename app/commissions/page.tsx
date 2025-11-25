@@ -171,7 +171,7 @@ export default function CommissionsPage() {
             <label className="block text-sm font-medium text-gray-300 mb-1">Tier</label>
             <select
               name="tier"
-              value={form.type}
+              value={form.tier}
               onChange={handleChange}
               required
               className="w-full bg-[#111] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-gray-400"
