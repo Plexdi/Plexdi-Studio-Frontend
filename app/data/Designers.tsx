@@ -25,49 +25,49 @@ export const designerShowcase = [
       // add as many as you want here (4, 5, 6, 7…)
     ],
   },
-  {
-    id: "Ruski",
-    name: "Ruski",
-    specialties: ["Banner", "Thumbnails", "pfp"],
-    projects: [
-      {
-        id: "Ruski-1",
-        title: "Social Media Header",
-        preview: "/mix_white-Ruski_banner.png",
-        tags: ["Social Media"],
-      },
-      {
-        id: "Ruski-2",
-        title: "Social Media Banner",
-        preview: "/mix_white-RUSKI_CUSTOM_HEADER_2.png",
-        tags: ["Social Media"],
-      },
-      {
-        id: "Ruski-3",
-        title: "Madara Header",
-        preview: "/mix_white-RUSKI_MADARA_HEADER.png",
-        tags: ["Anime Header"],
-      },
-      {
-        id: "Ruski-4",
-        title: "Gear 5 Luffy Header",
-        preview: "/mix_white-Ziatora_HEADER_2.png",
-        tags: ["Anime Header"],
-      },
-      {
-        id: "Ruski-5",
-        title: "Makima Header",
-        preview: "/mix_white-RUSKI_MAKIMA_HEADER.png",
-        tags: ["Anime Header"],
-      },
-      {
-        id: "Ruski-6",
-        title: "Fate Stay Night Header",
-        preview: "/mix_white-SAKUA_MATOU_HEADER_BN.png",
-        tags: ["Anime banner", "Youtube banner"],
-      },
-    ],
-  },
+//   {
+//     id: "Ruski",
+//     name: "Ruski",
+//     specialties: ["Banner", "Thumbnails", "pfp"],
+//     projects: [
+//       {
+//         id: "Ruski-1",
+//         title: "Social Media Header",
+//         preview: "/mix_white-Ruski_banner.png",
+//         tags: ["Social Media"],
+//       },
+//       {
+//         id: "Ruski-2",
+//         title: "Social Media Banner",
+//         preview: "/mix_white-RUSKI_CUSTOM_HEADER_2.png",
+//         tags: ["Social Media"],
+//       },
+//       {
+//         id: "Ruski-3",
+//         title: "Madara Header",
+//         preview: "/mix_white-RUSKI_MADARA_HEADER.png",
+//         tags: ["Anime Header"],
+//       },
+//       {
+//         id: "Ruski-4",
+//         title: "Gear 5 Luffy Header",
+//         preview: "/mix_white-Ziatora_HEADER_2.png",
+//         tags: ["Anime Header"],
+//       },
+//       {
+//         id: "Ruski-5",
+//         title: "Makima Header",
+//         preview: "/mix_white-RUSKI_MAKIMA_HEADER.png",
+//         tags: ["Anime Header"],
+//       },
+//       {
+//         id: "Ruski-6",
+//         title: "Fate Stay Night Header",
+//         preview: "/mix_white-SAKUA_MATOU_HEADER_BN.png",
+//         tags: ["Anime banner", "Youtube banner"],
+//       },
+//     ],
+//   },
 ];
 
 export const thumbnailShowcase = [
