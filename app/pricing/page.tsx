@@ -18,23 +18,25 @@ type PricingTier = {
 
 type PricingCategory = {
   id:
-    | "banners"
-    | "thumbnails"
-    | "profiles"
-    | "emotes"
-    | "logos"
-    | "bundles";
+    | "graphics-banners"
+    | "video-thumbnails"
+    | "profile-pictures"
+    | "stream-emotes"
+    | "creator-logos"
+    | "creator-bundles";
   label: string;
   description: string;
   tiers: PricingTier[];
 };
 
 export default function PricingPage() {
+  const categories = pricingCategories as PricingCategory[];
+
   const [activeCategoryId, setActiveCategoryId] = useState<PricingCategory["id"]>(
-    "banners"
+    categories[0]?.id ?? "graphics-banners"
   );
 
-  const activeCategory = pricingCategories.find(
+  const activeCategory = categories.find(
     (cat) => cat.id === activeCategoryId
   );
 
@@ -64,7 +66,7 @@ export default function PricingPage() {
 
         {/* Category selector */}
         <nav className="mt-8 flex flex-wrap gap-2 border-b border-gray-200 pb-3">
-          {pricingCategories.map((cat) => {
+          {categories.map((cat) => {
             const isActive = cat.id === activeCategoryId;
             return (
               <button
