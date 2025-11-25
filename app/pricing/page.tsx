@@ -22,8 +22,8 @@ type PricingCategory = {
     | "video-thumbnails"
     | "profile-pictures"
     | "stream-emotes"
-    | "creator-logos"
     | "creator-bundles";
+    // | "creator-logos"
   label: string;
   description: string;
   tiers: PricingTier[];

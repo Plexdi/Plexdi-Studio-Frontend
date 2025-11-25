@@ -240,61 +240,61 @@ export const pricingCategories = [
     ],
   },
 
-  // 5) LOGOS
-  {
-    id: "creator-logos",
-    label: "Logos",
-    description:
-      "Logo designs for creators, small teams, or personal brands.",
-    tiers: [
-      {
-        id: "logo-starter",
-        title: "Starter Logo",
-        priceLabel: "£50",
-        summary:
-          "Simple wordmark or icon-style logo for use on social and streaming platforms.",
-        includes: [
-          "Wordmark or simple icon-based logo",
-          "1 main concept + 1 refinement round",
-          "PNG export + basic SVG where possible",
-          "Colour and monochrome versions",
-        ],
-        bestFor: "Solo creators and small channels needing a basic identity.",
-      },
-      {
-        id: "logo-standard",
-        title: "Standard Logo",
-        priceLabel: "£80",
-        summary:
-          "More refined logo with stronger concept and better scalability.",
-        includes: [
-          "Logo concept with more developed idea/shape language",
-          "1 main concept + 1–2 refinement rounds",
-          "Vector or high-resolution exports for multiple uses",
-          "Horizontal + stacked layout where needed",
-        ],
-        bestFor:
-          "Teams, long-term creator brands, or those planning overlays/merch around the logo.",
-        highlight: true,
-      },
-      {
-        id: "logo-premium",
-        title: "Premium Logo",
-        priceLabel: "£100+",
-        summary:
-          "Fully developed logo system for serious branding and long-term use.",
-        includes: [
-          "Multiple initial directions to choose from",
-          "Refinements based on feedback",
-          "Full logo set (primary, secondary, mark/icon)",
-          "Vector exports and usage-ready files",
-          "Colour, monochrome, and inverted variants",
-        ],
-        bestFor:
-          "Serious brands, teams, or creators building a full visual identity.",
-      },
-    ],
-  },
+  // // 5) LOGOS
+  // {
+  //   id: "creator-logos",
+  //   label: "Logos",
+  //   description:
+  //     "Logo designs for creators, small teams, or personal brands.",
+  //   tiers: [
+  //     {
+  //       id: "logo-starter",
+  //       title: "Starter Logo",
+  //       priceLabel: "£50",
+  //       summary:
+  //         "Simple wordmark or icon-style logo for use on social and streaming platforms.",
+  //       includes: [
+  //         "Wordmark or simple icon-based logo",
+  //         "1 main concept + 1 refinement round",
+  //         "PNG export + basic SVG where possible",
+  //         "Colour and monochrome versions",
+  //       ],
+  //       bestFor: "Solo creators and small channels needing a basic identity.",
+  //     },
+  //     {
+  //       id: "logo-standard",
+  //       title: "Standard Logo",
+  //       priceLabel: "£80",
+  //       summary:
+  //         "More refined logo with stronger concept and better scalability.",
+  //       includes: [
+  //         "Logo concept with more developed idea/shape language",
+  //         "1 main concept + 1–2 refinement rounds",
+  //         "Vector or high-resolution exports for multiple uses",
+  //         "Horizontal + stacked layout where needed",
+  //       ],
+  //       bestFor:
+  //         "Teams, long-term creator brands, or those planning overlays/merch around the logo.",
+  //       highlight: true,
+  //     },
+  //     {
+  //       id: "logo-premium",
+  //       title: "Premium Logo",
+  //       priceLabel: "£100+",
+  //       summary:
+  //         "Fully developed logo system for serious branding and long-term use.",
+  //       includes: [
+  //         "Multiple initial directions to choose from",
+  //         "Refinements based on feedback",
+  //         "Full logo set (primary, secondary, mark/icon)",
+  //         "Vector exports and usage-ready files",
+  //         "Colour, monochrome, and inverted variants",
+  //       ],
+  //       bestFor:
+  //         "Serious brands, teams, or creators building a full visual identity.",
+  //     },
+  //   ],
+  // },
 
   // 6) BUNDLES / PACKS
   {
