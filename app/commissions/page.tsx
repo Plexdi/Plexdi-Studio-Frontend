@@ -1,5 +1,6 @@
 'use client';
 
+import { number } from "motion";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
@@ -9,6 +10,7 @@ export default function CommissionsPage() {
     email: "",
     discord: "",
     type: "",
+    tier: "",
     details: "",
     refs: "",
   });
@@ -50,6 +52,7 @@ export default function CommissionsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           item : form.type,
+          tier: form.tier,
           amount: 1,
           CommissionID : commissionId
         })
@@ -69,6 +72,7 @@ export default function CommissionsPage() {
         email: "",
         discord: "",
         type: "",
+        tier: "",
         details: "",
         refs: "",
       });
@@ -162,6 +166,23 @@ export default function CommissionsPage() {
               <option value="custom">Custom Request</option>
             </select>
           </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Tier</label>
+            <select
+              name="tier"
+              value={form.type}
+              onChange={handleChange}
+              required
+              className="w-full bg-[#111] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-gray-400"
+            >
+              <option value="">Select type</option>
+              <option value="Starter">Starter</option>
+              <option value="Standard">Standard</option>
+              <option value="Premium">Premium</option>
+            </select>
+          </div>
+
           {/* Conditional input: only show when 'banner' is chosen */}
           {form.type === "Banner  " && (
             <div>

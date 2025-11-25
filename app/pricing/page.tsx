@@ -1,9 +1,43 @@
 // app/pricing/page.tsx
-'use client';
+"use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import {pricingCategories} from "../data/Products";
+// ---- Types ----
+type PricingTier = {
+  id: string;
+  title: string;
+  priceLabel: string;
+  summary: string;
+  includes: string[];
+  excludes?: string[];
+  bestFor?: string;
+  highlight?: boolean;
+};
+
+type PricingCategory = {
+  id:
+    | "banners"
+    | "thumbnails"
+    | "profiles"
+    | "emotes"
+    | "logos"
+    | "bundles";
+  label: string;
+  description: string;
+  tiers: PricingTier[];
+};
 
 export default function PricingPage() {
+  const [activeCategoryId, setActiveCategoryId] = useState<PricingCategory["id"]>(
+    "banners"
+  );
+
+  const activeCategory = pricingCategories.find(
+    (cat) => cat.id === activeCategoryId
+  );
+
   return (
     <main className="bg-white text-gray-900">
       <section className="mx-auto max-w-7xl px-4 pt-20 pb-24 sm:px-6 lg:px-8">
@@ -13,103 +47,61 @@ export default function PricingPage() {
             Pricing
           </h1>
           <p className="mt-3 text-gray-600 leading-relaxed">
-            These are my current starting prices for custom design work.
-            Final pricing can vary depending on complexity, and
-            specific requests. For anything outside these categories,
-            you can always reach out through the{" "}
+            These are my current starting prices for custom design work. Final
+            pricing can vary depending on complexity and specific requests. For
+            anything outside these categories, you can always reach out through
+            the{" "}
             <Link href="/commissions" className="underline underline-offset-4">
               commission form
-            </Link>.
+            </Link>
+            .
           </p>
           <p className="mt-2 text-sm text-gray-400">
-            Pricing last updated {new Date().getFullYear()} – subject to change as the studio grows.
+            Pricing last updated {new Date().getFullYear()} – subject to change
+            as the studio grows.
           </p>
         </header>
 
-        {/* Category grid */}
-        <section className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {/* Banners */}
-          <PricingCard
-            title="Banners"
-            fromPrice="£25"
-            description="Clean, anime-inspired or minimal banners tailored for Twitch, YouTube, Discord, or X."
-            items={[
-              "1500×500 (or platform-optimized size)",
-              "1 main concept + 1–2 small revisions",
-              "Optimized for clarity and text readability",
-              "Exported in high-resolution PNG/JPEG",
-            ]}
-            recommended
-          />
+        {/* Category selector */}
+        <nav className="mt-8 flex flex-wrap gap-2 border-b border-gray-200 pb-3">
+          {pricingCategories.map((cat) => {
+            const isActive = cat.id === activeCategoryId;
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setActiveCategoryId(cat.id)}
+                className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition border ${
+                  isActive
+                    ? "bg-gray-900 text-white border-gray-900"
+                    : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                }`}
+              >
+                {cat.label}
+              </button>
+            );
+          })}
+        </nav>
 
-          {/* Thumbnails */}
-          <PricingCard
-            title="YouTube Thumbnails"
-            fromPrice="£15"
-            description="Eye-catching thumbnails focused on clarity, contrast, and click-through potential."
-            items={[
-              "1 thumbnail concept",
-              "Text + subject emphasis",
-              "Color and contrast tuned for YouTube feed",
-              "Resize for Shorts/other formats on request",
-            ]}
-          />
+        {/* Active category view */}
+        {activeCategory && (
+          <section className="mt-8 space-y-6">
+            <header className="max-w-3xl space-y-2">
+              <h2 className="text-xl font-semibold text-gray-900">
+                {activeCategory.label}
+              </h2>
+              <p className="text-sm text-gray-600">
+                {activeCategory.description}
+              </p>
+            </header>
 
-          {/* Profile Pictures */}
-          <PricingCard
-            title="Profile Pictures"
-            fromPrice="£20"
-            description="Custom PFPs that match your banner or overall brand vibe."
-            items={[
-              "Square format (e.g. 800×800+)",
-              "Designed to match your existing branding",
-              "Works across Twitch, Discord, X, and more",
-              "Simple lighting and effects included",
-            ]}
-          />
-
-            <PricingCard
-              title="Twitch Emotes"
-              fromPrice="£30"
-              description="Custom Twitch emotes drawn to match your brand, character, or streaming personality. Designed to be expressive, readable, and perfectly sized for Twitch upload."
-              items={[
-              "3 emote sizes included (28px, 56px, 112px)",
-              "Crisp PNG exports with transparent backgrounds",
-              "1 base style with small expression variations",
-              "Perfect for Twitch, YouTube, Discord emotes",
-              ]}
-            />
-
-          {/* Logos */}
-          <PricingCard
-            title="Logos"
-            fromPrice="£40"
-            description="Simple, memorable logos for creators, small teams, or personal brands."
-            items={[
-              "Wordmark or simple icon-style logo",
-              "1 main concept + refinement round",
-              "Delivered as PNG + SVG (where possible)",
-              "Monochrome and color variations",
-            ]}
-          />
-
-          {/* Stream / Creator Packs */}
-          <PricingCard
-            title="Stream / Creator Packs"
-            fromPrice="£60"
-            description="Bundles for creators who want a cohesive look across all their platforms."
-            items={[
-              "Banner + PFP + basic panel set",
-              "Designed as one unified identity",
-              "PSD/Source files available on request",
-              "Great for rebrands or fresh launches",
-              "Twitch/Emotes"
-            ]}
-          />
-
-
-          {/* Portfolio / Web Design */}
-        </section>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {activeCategory.tiers.map((tier) => (
+                <TierCard key={tier.id} tier={tier} />
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Notes / CTA */}
         <section className="mt-16 grid gap-8 md:grid-cols-[2fr,1.3fr]">
@@ -119,15 +111,17 @@ export default function PricingPage() {
             </h2>
             <p className="mt-3 text-gray-600 leading-relaxed">
               These prices are meant as a baseline. If your idea is more
-              complex (multiple characters, heavy effects, animated elements,
-              or large packs), we’ll talk through it first and I’ll send you
-              a tailored quote before any work starts.
+              complex (multiple characters, heavy effects, animated elements, or
+              large packs), we’ll talk through it first and I’ll send you a
+              tailored quote before any work starts.
             </p>
             <p className="mt-3 text-gray-600 leading-relaxed">
-              For most projects I take a small deposit to secure the slot,
-              then the remaining payment once you’re happy with the final
-              design. All payments are currently handled via{" "}
-              <span className="font-medium text-gray-900">PayPal</span>.
+              For most projects I take a small deposit to secure the slot, then
+              the remaining payment once you’re happy with the final design. All
+              payments are currently handled via{" "}
+              <span className="font-medium text-gray-900">Stripe</span> or{" "}
+              <span className="font-medium text-gray-900">PayPal</span>{" "}
+              (depending on what you prefer).
             </p>
           </div>
 
@@ -136,9 +130,9 @@ export default function PricingPage() {
               Not sure which option fits you?
             </h3>
             <p className="mt-2 text-sm text-gray-600">
-              If you’re somewhere between packages or want something more
-              custom (like a full brand refresh or long-term work), just send
-              a quick brief and I’ll reply with suggestions and an estimated range.
+              If you’re somewhere between packages or want something more custom
+              (like a full brand refresh or long-term work), just send a quick
+              brief and I’ll reply with suggestions and an estimated range.
             </p>
             <Link
               href="/commissions"
@@ -157,49 +151,70 @@ export default function PricingPage() {
   );
 }
 
-type PricingCardProps = {
-  title: string;
-  fromPrice: string;
-  description: string;
-  items: string[];
-  recommended?: boolean;
-};
-
-function PricingCard({
-  title,
-  fromPrice,
-  description,
-  items,
-  recommended,
-}: PricingCardProps) {
+// ---- Tier card component ----
+function TierCard({ tier }: { tier: PricingTier }) {
   return (
     <article
       className={`relative flex flex-col rounded-2xl border bg-white p-6 shadow-sm transition hover:shadow-md ${
-        recommended ? "border-gray-900" : "border-gray-200"
+        tier.highlight ? "border-gray-900" : "border-gray-200"
       }`}
     >
-      {recommended && (
+      {tier.highlight && (
         <span className="absolute -top-3 left-4 rounded-full bg-gray-900 px-3 py-1 text-xs font-medium text-white">
           Most requested
         </span>
       )}
 
-      <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-      <p className="mt-1 text-sm text-gray-500">from</p>
-      <p className="text-2xl font-semibold text-gray-900">{fromPrice}</p>
+      <div className="space-y-1">
+        <h3 className="text-sm font-semibold text-gray-900">{tier.title}</h3>
+        <p className="text-xl font-semibold text-gray-900">
+          {tier.priceLabel}
+        </p>
+      </div>
 
       <p className="mt-3 text-sm text-gray-600 leading-relaxed">
-        {description}
+        {tier.summary}
       </p>
 
-      <ul className="mt-4 space-y-2 text-sm text-gray-600">
-        {items.map((item) => (
-          <li key={item} className="flex gap-2">
-            <span className="mt-1 h-1.5 w-1.5 rounded-full bg-gray-400" />
-            <span>{item}</span>
-          </li>
-        ))}
-      </ul>
+      {/* Includes */}
+      <div className="mt-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          Includes
+        </p>
+        <ul className="mt-2 space-y-1.5 text-sm text-gray-700">
+          {tier.includes.map((item) => (
+            <li key={item} className="flex gap-2">
+              <span className="mt-1 h-1.5 w-1.5 rounded-full bg-gray-400" />
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Excludes */}
+      {tier.excludes && tier.excludes.length > 0 && (
+        <div className="mt-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Does NOT include
+          </p>
+          <ul className="mt-2 space-y-1.5 text-sm text-gray-600">
+            {tier.excludes.map((item) => (
+              <li key={item} className="flex gap-2">
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-red-400" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Best for */}
+      {tier.bestFor && (
+        <div className="mt-4 border-t border-gray-100 pt-3 text-xs text-gray-600">
+          <span className="font-semibold text-gray-800">Best for: </span>
+          {tier.bestFor}
+        </div>
+      )}
     </article>
   );
 }
