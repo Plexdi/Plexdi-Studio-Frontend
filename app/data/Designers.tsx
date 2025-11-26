@@ -25,49 +25,31 @@ export const designerShowcase = [
       // add as many as you want here (4, 5, 6, 7…)
     ],
   },
-//   {
-//     id: "Ruski",
-//     name: "Ruski",
-//     specialties: ["Banner", "Thumbnails", "pfp"],
-//     projects: [
-//       {
-//         id: "Ruski-1",
-//         title: "Social Media Header",
-//         preview: "/mix_white-Ruski_banner.png",
-//         tags: ["Social Media"],
-//       },
-//       {
-//         id: "Ruski-2",
-//         title: "Social Media Banner",
-//         preview: "/mix_white-RUSKI_CUSTOM_HEADER_2.png",
-//         tags: ["Social Media"],
-//       },
-//       {
-//         id: "Ruski-3",
-//         title: "Madara Header",
-//         preview: "/mix_white-RUSKI_MADARA_HEADER.png",
-//         tags: ["Anime Header"],
-//       },
-//       {
-//         id: "Ruski-4",
-//         title: "Gear 5 Luffy Header",
-//         preview: "/mix_white-Ziatora_HEADER_2.png",
-//         tags: ["Anime Header"],
-//       },
-//       {
-//         id: "Ruski-5",
-//         title: "Makima Header",
-//         preview: "/mix_white-RUSKI_MAKIMA_HEADER.png",
-//         tags: ["Anime Header"],
-//       },
-//       {
-//         id: "Ruski-6",
-//         title: "Fate Stay Night Header",
-//         preview: "/mix_white-SAKUA_MATOU_HEADER_BN.png",
-//         tags: ["Anime banner", "Youtube banner"],
-//       },
-//     ],
-//   },
+  {
+    id: "Akira",
+    name: "Akira",
+    specialties: ["Banner", "Thumbnails", "pfp"],
+    projects: [
+      {
+        id: "Akira-1",
+        title: "Social Media Header",
+        preview: "/Akira-2B.png",
+        tags: ["Social Media"],
+      },
+      {
+        id: "Akira-2",
+        title: "Social Media Banner",
+        preview: "/Akira-Furina.png",
+        tags: ["Social Media"],
+      },
+      {
+        id: "Akira-3",
+        title: "Madara Header",
+        preview: "/Akira-Xiao.png",
+        tags: ["Anime Header"],
+      },
+    ],
+  },
 ];
 
 export const thumbnailShowcase = [
@@ -123,3 +105,32 @@ export const thumbnailShowcase = [
   },
   // in future you can add more thumbnail designers here
 ];
+
+export const twitchEmotes = [
+  {
+    id: "Miana",
+    name: "Miana",
+    specialties: ["Twitch Emotes", "Stickers"],
+    projects: [
+      {
+        id: "emotes-1",
+        title: "Cute Cat Emote Set",
+        preview: "/Plex_Rip.png",
+        tags: ["Twitch Emotes", "Cute", "Cat"],
+      },
+      {
+        id: "emotes-2",
+        title: "Gaming Emote Pack",
+        preview: "/PLEX_WTF.png",
+        tags: ["Twitch Emotes", "Gaming"],
+      },
+      {
+        id: "emotes-3",
+        title: "Funny Reaction Emotes",
+        preview: "/Plexdi_Hearty.png",
+        tags: ["Twitch Emotes", "Funny"],
+        
+      }
+    ],  
+  }
+]

@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import PortfolioCarousel from "@/components/ui/carousel";
 import { banners } from "../data/Banners";
-import { designerShowcase, thumbnailShowcase } from "../data/Designers";
+import { designerShowcase, thumbnailShowcase, twitchEmotes } from "../data/Designers";
 import {
   SiAdobephotoshop,
   SiFigma,

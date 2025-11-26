@@ -301,52 +301,85 @@ export const pricingCategories = [
     id: "creator-bundles",
     label: "Bundles / Packs",
     description:
-      "Discounted bundles for creators who want a matching look across multiple assets.",
+      "Bundles designed to give creators fully matching visuals across multiple platforms. Each package reuses branding for higher consistency and better value.",
     tiers: [
+      // ⭐ DISCORD SERVER PACKAGE
       {
-        id: "bundle-starter",
-        title: "Starter Creator Pack",
-        priceLabel: "from £60",
+        id: "discord-server-package",
+        title: "Discord Server Package",
+        priceLabel: "£60 (Save 15£)",
         summary:
-          "A cohesive base setup for new creators wanting a consistent look.",
+          "A full set of consistent visuals for a Discord server, using one unified brand direction.",
         includes: [
-          "Banner + Standard PFP",
-          "Designed together as a single identity",
-          "High-resolution exports for key platforms",
+          "Invite Banner",
+          "Server Banner",
+          "Server PFP/Icon",
+          "Matching theme, colours, and layout",
+          "High-resolution PNG exports"
         ],
-        bestFor:
-          "New creators or rebrands wanting a basic but cohesive visual setup.",
+        bestFor: "Server owners who want a professional and cohesive Discord setup."
       },
+
+      // ⭐ DISCORD USER PROFILE PACKAGE
       {
-        id: "bundle-stream-pack",
-        title: "Stream Pack",
-        priceLabel: "from £80–£100",
+        id: "discord-user-profile-package",
+        title: "Discord User Profile Package",
+        priceLabel: "£40 (save £10)",
         summary:
-          "A more complete set for streamers who want multiple elements matching.",
+          "Clean, matching visuals for personal Discord profiles using one consistent design.",
         includes: [
-          "Banner + PFP + basic panel/header set",
-          "Coordinated colours, typography, and layout",
-          "Files organised for easy upload and reuse",
+          "Discord User Banner",
+          "Discord User PFP",
+          "Designed together for a unified look"
         ],
-        bestFor:
-          "Streamers upgrading their whole channel look in one go.",
-        highlight: true,
+        bestFor: "Discord users wanting a clean matching banner + PFP combo."
       },
+
+      // ⭐ SOCIAL MEDIA PACKAGE
       {
-        id: "bundle-ultimate",
+        id: "social-media-package",
+        title: "Social Media Banner Package",
+        priceLabel: "£60 (Save £15)",
+        summary:
+          "Three matching social media banners built from one design system for effortless branding.",
+        includes: [
+          "3 Platform Banners (e.g. YouTube, X/Twitter, Discord)",
+          "High-resolution exports for each platform"
+        ],
+        bestFor: "Creators wanting consistency across multiple social platforms.",
+        highlight: true
+      },
+
+      // ⭐ STARTER STREAMER BUNDLE
+      {
+        id: "starter-streamer-bundle",
+        title: "Starter Streamer Bundle",
+        priceLabel: "£60 (Save £10)",
+        summary:
+          "The most popular setup for new creators — simple, clean, and affordable.",
+        includes: [
+          "Standard Banner",
+          "Standard PFP",
+          "3 Twitch/Discord Emotes"
+        ],
+        bestFor: "New streamers building their first cohesive look."
+      },
+
+      // ⭐ ULTIMATE CREATOR BUNDLE
+      {
+        id: "ultimate-creator-bundle",
         title: "Ultimate Creator Bundle",
-        priceLabel: "from £140+",
+        priceLabel: "£100 (Save £20)",
         summary:
-          "Full branding starter kit for creators who want everything handled at once.",
+          "A premium, all-in-one identity kit designed for serious creators who want everything handled.",
         includes: [
-          "Banner + PFP",
-          "Basic logo or mark",
-          "Panel set and 1–2 thumbnails",
-          "All assets designed as one unified identity",
+          "Banner + Premium PFP",
+          "3 Emotes",
+          "Brand colour palette + typography direction"
         ],
         bestFor:
-          "Serious rebrands, launches, or creators committing to a long-term visual identity.",
-      },
-    ],
-  },
+          "Serious creators or streamers who want a complete brand identity handled for them."
+      }
+    ]
+  }
 ];
