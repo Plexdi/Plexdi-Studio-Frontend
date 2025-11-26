@@ -55,6 +55,12 @@ export const designerShowcase = [
         preview: "/akira-Vinland_wallpaper__2_edited.jpg",
         tags: ["wallpapers"],
       },
+      {
+        id: "Akira-5",
+        title: "Vinaland Wallpaper",
+        preview: "/Akira-Vinland_wallpaper.jpg",
+        tags: ["wallpapers"],
+      },
     ],
   },
 ];
