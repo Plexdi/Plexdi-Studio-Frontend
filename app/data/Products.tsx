@@ -373,7 +373,6 @@ export const pricingCategories = [
         includes: [
           "Standard Banner",
           "Standard PFP",
-          "3 Twitch/Discord Emotes"
         ],
         bestFor: "New streamers building their first cohesive look."
       },
