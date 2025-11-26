@@ -22,9 +22,8 @@ export const designerShowcase = [
         id: "Bones-3",
         title: "Sung Jin-Woo Header",
         preview: "/bones-solo-leveling-header.png",
-        tags: ["Banner", "Anime", "Discord"],
+        tags: ["Banner", "Anime", "Discord",  ],
       },
-      // add as many as you want here (4, 5, 6, 7…)
     ],
   },
   {
@@ -36,19 +35,25 @@ export const designerShowcase = [
         id: "Akira-1",
         title: "2B Banner",
         preview: "/Akira-2B.png",
-        tags: ["Social Media"],
+        tags: ["Social Media","Banner"],
       },
       {
         id: "Akira-2",
         title: "Furina Banner",
         preview: "/Akira-Furina.png",
-        tags: ["Social Media"],
+        tags: ["Social Media", "Banner"],
       },
       {
         id: "Akira-3",
         title: "Xiao Banner",
         preview: "/Akira-Xiao.png",
-        tags: ["Anime Header"],
+        tags: ["Anime Header", "Banner"],
+      },
+      {
+        id: "Akira-4",
+        title: "Vinaland Wallpaper",
+        preview: "/akira-Vinland_wallpaper__2_edited.jpg",
+        tags: ["wallpapers"],
       },
     ],
   },
@@ -103,12 +108,6 @@ export const thumbnailShowcase = [
         platform: "YouTube",
         tags: ["Youtube Thumbnails"],
       },
-      {
-        id: "Hitaka-thumb-6",
-        title: "Youtube Thumbnail – Jack Doherty",
-        preview: "/Hitaka-Jack_doherty_1.jpg",
-        tags: ["Youtube Thumbnails"],
-      },
     ],
   },
   // in future you can add more thumbnail designers here
@@ -124,19 +123,19 @@ export const twitchEmotes = [
         id: "emotes-1",
         title: "Cute Cat Emote Set",
         preview: "/Plex_Rip.png",
-        tags: ["Twitch Emotes", "Cute", "Cat"],
+        tags: ["Twitch Emotes", "Cute"],
       },
       {
         id: "emotes-2",
         title: "Gaming Emote Pack",
         preview: "/PLEX_WTF.png",
-        tags: ["Twitch Emotes", "Gaming"],
+        tags: ["Twitch Emotes",],
       },
       {
         id: "emotes-3",
         title: "Funny Reaction Emotes",
         preview: "/Plexdi_Hearty.png",
-        tags: ["Twitch Emotes", "Funny"],
+        tags: ["Twitch Emotes", "Love"],
         
       }
     ],  

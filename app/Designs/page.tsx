@@ -5,7 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import PortfolioCarousel from "@/components/ui/carousel";
 import { banners } from "../data/Banners";
-import { designerShowcase, thumbnailShowcase } from "../data/Designers";
+import {
+  designerShowcase,
+  thumbnailShowcase,
+  twitchEmotes,
+} from "../data/Designers";
 import {
   SiAdobephotoshop,
   SiFigma,
@@ -18,8 +22,8 @@ type Project = {
   id: string;
   title: string;
   preview: string;
-  platform?: string;
   tags?: string[];
+  platform?: string; // we ignore this now, but leave it so your data still type-checks
 };
 
 type Designer = {
@@ -30,8 +34,109 @@ type Designer = {
   projects: Project[];
 };
 
-// ---- Generic lightbox used for banners ----
-type BannerLightboxProps = {
+type ServiceId =
+  | "banners"
+  | "wallpapers"
+  | "thumbnails"
+  | "emotes"
+  | "logos"
+  | "other";
+
+type DesignerCategoryId = "all" | ServiceId;
+
+type DesignerCategory = {
+  id: DesignerCategoryId;
+  label: string;
+  projects: Project[];
+};
+
+// Map project tags -> service types
+// Make sure your project `tags` use these words where relevant.
+const TAG_TO_SERVICE: Record<string, ServiceId> = {
+  Banner: "banners",
+  "Anime Header": "banners",
+  "Social Media": "banners",
+
+  Thumbnail: "thumbnails",
+
+  "Twitch Emotes": "emotes",
+
+  Wallpaper: "wallpapers",
+  Wallpapers: "wallpapers",
+
+  Logo: "logos",
+  Logos: "logos",
+};
+
+const SERVICE_LABEL: Record<ServiceId, string> = {
+  banners: "Banners",
+  wallpapers: "Wallpapers",
+  thumbnails: "Thumbnails",
+  emotes: "Twitch Emotes",
+  logos: "Logos",
+  other: "Other Work",
+};
+
+function getServiceIdFromProject(project: Project): ServiceId {
+  if (!project.tags || project.tags.length === 0) return "other";
+  for (const tag of project.tags) {
+    const mapped = TAG_TO_SERVICE[tag];
+    if (mapped) return mapped;
+  }
+  return "other";
+}
+
+function buildDesignerCategories(designer: Designer): DesignerCategory[] {
+  const serviceMap = new Map<ServiceId, Project[]>();
+
+  designer.projects.forEach((project) => {
+    const serviceId = getServiceIdFromProject(project);
+    if (!serviceMap.has(serviceId)) {
+      serviceMap.set(serviceId, []);
+    }
+    serviceMap.get(serviceId)!.push(project);
+  });
+
+  const categories: DesignerCategory[] = [];
+
+  // "All" tab first
+  if (designer.projects.length > 0) {
+    categories.push({
+      id: "all",
+      label: "All",
+      projects: designer.projects,
+    });
+  }
+
+  // Then each specific service tab (Banners, Wallpapers, Thumbnails, etc.)
+  for (const [serviceId, projects] of serviceMap.entries()) {
+    if (serviceId === "other") continue;
+    categories.push({
+      id: serviceId,
+      label: SERVICE_LABEL[serviceId],
+      projects,
+    });
+  }
+
+  // Put "Other Work" last if any
+  if (serviceMap.has("other")) {
+    categories.push({
+      id: "other",
+      label: SERVICE_LABEL.other,
+      projects: serviceMap.get("other")!,
+    });
+  }
+
+  return categories;
+}
+
+// ---- Lightbox ----
+type LightboxState = {
+  items: Project[];
+  index: number;
+} | null;
+
+type MediaLightboxProps = {
   items: Project[];
   index: number;
   onClose: () => void;
@@ -39,13 +144,13 @@ type BannerLightboxProps = {
   onNext: () => void;
 };
 
-function BannerLightbox({
+function MediaLightbox({
   items,
   index,
   onClose,
   onPrev,
   onNext,
-}: BannerLightboxProps) {
+}: MediaLightboxProps) {
   const item = items[index];
   const [animateIn, setAnimateIn] = useState(false);
 
@@ -110,118 +215,6 @@ function BannerLightbox({
               src={item.preview}
               alt={item.title}
               width={1500}
-              height={600}
-              className="h-auto w-full max-h-[75vh] object-contain rounded-lg"
-            />
-          </div>
-        </div>
-
-        {/* Info bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-gray-100">
-          <div>
-            <p className="font-medium">{item.title}</p>
-            {item.platform && (
-              <p className="text-xs text-gray-300 mt-0.5">{item.platform}</p>
-            )}
-          </div>
-          {item.tags && item.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {item.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-flex items-center rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-gray-50 border border-white/20"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ---- Lightbox for thumbnails (slightly different width) ----
-type ThumbnailLightboxProps = {
-  items: Project[];
-  index: number;
-  onClose: () => void;
-  onPrev: () => void;
-  onNext: () => void;
-};
-
-function ThumbnailLightbox({
-  items,
-  index,
-  onClose,
-  onPrev,
-  onNext,
-}: ThumbnailLightboxProps) {
-  const item = items[index];
-  const [animateIn, setAnimateIn] = useState(false);
-
-  useEffect(() => {
-    const id = requestAnimationFrame(() => setAnimateIn(true));
-    return () => cancelAnimationFrame(id);
-  }, []);
-
-  if (!item) return null;
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md px-4"
-      onClick={onClose}
-    >
-      <div
-        className={`relative w-full max-w-4xl space-y-4 transition-all duration-200 ease-out ${
-          animateIn
-            ? "opacity-100 translate-y-0 scale-100"
-            : "opacity-0 translate-y-2 scale-95"
-        }`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Top bar */}
-        <div className="flex items-center justify-between text-xs text-gray-200 mb-1">
-          <span className="font-medium">
-            {index + 1} / {items.length}
-          </span>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-full border border-white/30 px-3 py-1 text-xs font-medium text-white/80 hover:bg-white/10"
-          >
-            Close
-          </button>
-        </div>
-
-        {/* Image + arrows */}
-        <div className="relative bg-black/90 rounded-2xl p-3 sm:p-4">
-          {items.length > 1 && (
-            <button
-              type="button"
-              onClick={onPrev}
-              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/15 border border-white/30 px-2.5 py-2 text-lg text-white hover:bg-white/30 transition"
-            >
-              ‹
-            </button>
-          )}
-
-          {items.length > 1 && (
-            <button
-              type="button"
-              onClick={onNext}
-              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/15 border border-white/30 px-2.5 py-2 text-lg text-white hover:bg-white/30 transition"
-            >
-              ›
-            </button>
-          )}
-
-          <div className="flex items-center justify-center">
-            <Image
-              src={item.preview}
-              alt={item.title}
-              width={1500}
               height={900}
               className="h-auto w-full max-h-[75vh] object-contain rounded-lg"
             />
@@ -232,66 +225,28 @@ function ThumbnailLightbox({
         <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-gray-100">
           <div>
             <p className="font-medium">{item.title}</p>
-            {item.platform && (
-              <p className="text-xs text-gray-300 mt-0.5">{item.platform}</p>
+            {item.tags && item.tags.length > 0 && (
+              <p className="text-xs text-gray-300 mt-0.5">
+                {item.tags.join(" • ")}
+              </p>
             )}
           </div>
-          {item.tags && item.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {item.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-flex items-center rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-gray-50 border border-white/20"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
         </div>
       </div>
     </div>
   );
 }
 
-// ---- Thumbnail designer section with internal tabs ----
-type ThumbnailDesignerSectionProps = {
+// ---- Designer panel with internal service tabs ----
+type DesignerPanelProps = {
   designer: Designer;
-  onOpenGallery: (items: Project[], index: number) => void;
+  onOpenLightbox: (items: Project[], index: number) => void;
 };
 
-function ThumbnailDesignerSection({
-  designer,
-  onOpenGallery,
-}: ThumbnailDesignerSectionProps) {
-  // Group projects by platform (YouTube, Twitch, etc.)
-  const categoryMap = new Map<
-    string,
-    { label: string; projects: Project[] }
-  >();
-
-  designer.projects.forEach((project) => {
-    const platform = project.platform || "Other";
-    const id = platform.toLowerCase();
-    const label =
-      platform === "Other" ? "Thumbnails" : `${platform} Thumbnails`;
-
-    if (!categoryMap.has(id)) {
-      categoryMap.set(id, { label, projects: [] });
-    }
-    categoryMap.get(id)!.projects.push(project);
-  });
-
-  const categories = Array.from(categoryMap.entries()).map(
-    ([id, value]) => ({
-      id,
-      label: value.label,
-      projects: value.projects,
-    })
-  );
-
-  const [activeCategoryId, setActiveCategoryId] = useState(
-    categories[0]?.id ?? ""
+function DesignerPanel({ designer, onOpenLightbox }: DesignerPanelProps) {
+  const categories = buildDesignerCategories(designer);
+  const [activeCategoryId, setActiveCategoryId] = useState<DesignerCategoryId>(
+    categories[0]?.id ?? "all"
   );
 
   const activeCategory =
@@ -323,7 +278,7 @@ function ThumbnailDesignerSection({
         </div>
 
         {/* Segmented control */}
-        {categories.length > 0 && (
+        {categories.length > 1 && (
           <div className="inline-flex rounded-full bg-white p-1 border border-gray-200">
             {categories.map((cat) => {
               const isActive = cat.id === activeCategoryId;
@@ -346,64 +301,80 @@ function ThumbnailDesignerSection({
         )}
       </div>
 
-      {/* Optional tiny label */}
+      {/* Tiny label */}
       {activeCategory && (
         <p className="text-xs font-semibold tracking-wide uppercase text-gray-500">
-          {activeCategory.label}
+          {activeCategory.id === "all"
+            ? "All Work"
+            : SERVICE_LABEL[activeCategory.id as ServiceId] || "Selected Work"}
         </p>
       )}
 
-      {/* Thumbnails grid for active category */}
+      {/* Grid for active category */}
       {activeCategory && (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {activeCategory.projects.map((project, projectIndex) => (
-            <article
-              key={project.id}
-              className="group rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition cursor-zoom-in"
-              onClick={() =>
-                onOpenGallery(activeCategory.projects, projectIndex)
-              }
-            >
-              <div className="relative aspect-video bg-gray-100 overflow-hidden">
-                <Image
-                  src={project.preview}
-                  alt={project.title}
-                  fill
-                  className="object-cover group-hover:scale-[1.03] transition-transform duration-300"
-                />
-                {project.platform && (
+          {activeCategory.projects.map((project, projectIndex) => {
+            const serviceId = getServiceIdFromProject(project);
+
+            // Aspect ratio per service
+            let aspectClass = "aspect-[3/1]";
+            if (serviceId === "thumbnails") {
+              aspectClass = "aspect-video";
+            } else if (serviceId === "emotes") {
+              aspectClass = "aspect-square";
+            }
+
+            return (
+              <article
+                key={project.id}
+                className="group rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition cursor-zoom-in"
+                onClick={() =>
+                  onOpenLightbox(activeCategory.projects, projectIndex)
+                }
+              >
+                <div
+                  className={`relative ${aspectClass} bg-gray-100 overflow-hidden`}
+                >
+                  <Image
+                    src={project.preview}
+                    alt={project.title}
+                    fill
+                    className="object-cover group-hover:scale-[1.03] transition-transform duration-300"
+                  />
+                  {/* Service badge */}
                   <div className="absolute left-3 top-3 inline-flex items-center rounded-full bg-black/70 px-2 py-1">
                     <span className="text-[10px] font-medium uppercase tracking-wide text-white">
-                      {project.platform}
+                      {SERVICE_LABEL[serviceId]}
                     </span>
                   </div>
-                )}
-                <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/35 transition">
-                  <span className="rounded-full bg-white/95 px-3 py-1 text-[11px] font-medium text-gray-900 shadow-sm">
-                    View thumbnail
-                  </span>
-                </div>
-              </div>
-
-              <div className="p-4 space-y-2">
-                <h4 className="text-sm font-semibold text-gray-900 line-clamp-2">
-                  {project.title}
-                </h4>
-                {project.tags && project.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mt-1">
-                    {project.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="inline-flex items-center rounded-full bg-gray-50 px-2 py-0.5 text-[11px] text-gray-700 border border-gray-200"
-                      >
-                        {tag}
-                      </span>
-                    ))}
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/35 transition">
+                    <span className="rounded-full bg-white/95 px-3 py-1 text-[11px] font-medium text-gray-900 shadow-sm">
+                      View design
+                    </span>
                   </div>
-                )}
-              </div>
-            </article>
-          ))}
+                </div>
+
+                <div className="p-4 space-y-2">
+                  <h4 className="text-sm font-semibold text-gray-900 line-clamp-2">
+                    {project.title}
+                  </h4>
+                  {project.tags && project.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mt-1">
+                      {project.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="inline-flex items-center rounded-full bg-gray-50 px-2 py-0.5 text-[11px] text-gray-700 border border-gray-200"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </article>
+            );
+          })}
         </div>
       )}
     </section>
@@ -419,42 +390,21 @@ const slides = banners.map((b) => ({
   link: b.link,
 }));
 
-export default function PortfolioPage() {
+export default function DesignsPage() {
   const designers = designerShowcase as Designer[];
+  const thumbnailDesigners = thumbnailShowcase as Designer[];
+  const emoteDesigners = twitchEmotes as Designer[];
 
-  const thumbDesigners: Designer[] = (() => {
-    const sample = (thumbnailShowcase as any[])[0];
-    if (
-      sample &&
-      typeof sample === "object" &&
-      "projects" in sample &&
-      "name" in sample
-    ) {
-      return thumbnailShowcase as unknown as Designer[];
-    }
-    return [
-      {
-        id: "thumbnail-group",
-        name: "Thumbnail Showcase",
-        projects: thumbnailShowcase as unknown as Project[],
-      },
-    ];
-  })();
+  const [lightbox, setLightbox] = useState<LightboxState>(null);
 
-  // Banner lightbox (per designer)
-  const [bannerGallery, setBannerGallery] = useState<{
-    items: Project[];
-    index: number;
-  } | null>(null);
-
-  const openBannerGallery = (items: Project[], index: number) => {
-    setBannerGallery({ items, index });
+  const openLightbox = (items: Project[], index: number) => {
+    setLightbox({ items, index });
   };
 
-  const closeBannerGallery = () => setBannerGallery(null);
+  const closeLightbox = () => setLightbox(null);
 
-  const nextBanner = () => {
-    setBannerGallery((prev) => {
+  const next = () => {
+    setLightbox((prev) => {
       if (!prev || prev.items.length === 0) return prev;
       return {
         ...prev,
@@ -463,40 +413,8 @@ export default function PortfolioPage() {
     });
   };
 
-  const prevBanner = () => {
-    setBannerGallery((prev) => {
-      if (!prev || prev.items.length === 0) return prev;
-      return {
-        ...prev,
-        index: (prev.index - 1 + prev.items.length) % prev.items.length,
-      };
-    });
-  };
-
-  // Thumbnail lightbox (per thumbnail designer)
-  const [thumbGallery, setThumbGallery] = useState<{
-    items: Project[];
-    index: number;
-  } | null>(null);
-
-  const openThumbGallery = (items: Project[], index: number) => {
-    setThumbGallery({ items, index });
-  };
-
-  const closeThumbGallery = () => setThumbGallery(null);
-
-  const nextThumb = () => {
-    setThumbGallery((prev) => {
-      if (!prev || prev.items.length === 0) return prev;
-      return {
-        ...prev,
-        index: (prev.index + 1) % prev.items.length,
-      };
-    });
-  };
-
-  const prevThumb = () => {
-    setThumbGallery((prev) => {
+  const prev = () => {
+    setLightbox((prev) => {
       if (!prev || prev.items.length === 0) return prev;
       return {
         ...prev,
@@ -514,20 +432,17 @@ export default function PortfolioPage() {
             Designs &amp; Visuals
           </h1>
           <p className="max-w-2xl mx-auto text-gray-600">
-            A showcase of recent banner and visual design work. Every piece is
-            crafted to match each creator’s energy — clean, vibrant, and
-            story-driven. Exported in{" "}
-            <span className="font-medium text-gray-800">1500×500 (3:1)</span>{" "}
-            for high quality display.
+            A showcase of recent banner, thumbnail, emote and visual design work
+            from Plexdi Studio and the designers I work with.
           </p>
         </div>
 
-        {/* MAIN CAROUSEL – YOUR FEATURED WORK */}
+        {/* MAIN CAROUSEL – FEATURED WORK */}
         <div className="mt-8">
           <PortfolioCarousel slides={slides} />
         </div>
 
-        {/* DESIGNER SECTIONS (banners / main work) */}
+        {/* MAIN DESIGNER SHOWCASE (banners, wallpapers, logos, etc.) */}
         <div className="mt-16 space-y-10">
           <div className="text-center space-y-3">
             <p className="text-xs font-semibold tracking-[0.22em] uppercase text-gray-500">
@@ -537,107 +452,69 @@ export default function PortfolioPage() {
               Designer Showcase
             </h2>
             <p className="text-sm text-gray-600 max-w-2xl mx-auto">
-              Work created by designers at Plexdi Studio across Twitch, YouTube
-              and creator branding. Each section highlights one designer and a
-              selection of their projects.
+              Work created by designers at Plexdi Studio across banners,
+              wallpapers, logos and more. Use the tabs inside each card to
+              switch between their specialties.
             </p>
           </div>
 
           <div className="space-y-12">
             {designers.map((designer) => (
-              <section
+              <DesignerPanel
                 key={designer.id}
-                className="rounded-2xl border border-gray-200 bg-gray-50/70 p-5 sm:p-6 lg:p-8 space-y-6"
-              >
-                {/* Designer header */}
-                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                  <div className="space-y-1">
-                    <h3 className="text-base font-semibold text-gray-900">
-                      {designer.name}
-                    </h3>
-                    {designer.role && (
-                      <p className="text-xs text-gray-500">{designer.role}</p>
-                    )}
-                    {designer.specialties && designer.specialties.length > 0 && (
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        {designer.specialties.map((spec) => (
-                          <span
-                            key={spec}
-                            className="inline-flex items-center rounded-full bg-white px-2 py-0.5 text-[11px] text-gray-700 border border-gray-200"
-                          >
-                            {spec}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-xs text-gray-500 max-w-sm leading-relaxed">
-                    Selected work from {designer.name}, showcasing different
-                    layouts, colour palettes, and formats tailored to each
-                    creator.
-                  </p>
-                </div>
-
-                {/* Projects grid – clickable banners */}
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                  {designer.projects.map((project, projectIndex) => (
-                    <article
-                      key={project.id}
-                      className="group rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition cursor-zoom-in"
-                      onClick={() =>
-                        openBannerGallery(designer.projects, projectIndex)
-                      }
-                    >
-                      <div className="relative aspect-[3/1] bg-gray-100 overflow-hidden">
-                        <Image
-                          src={project.preview}
-                          alt={project.title}
-                          fill
-                          className="object-cover group-hover:scale-[1.02] transition-transform duration-300"
-                        />
-                        {project.platform && (
-                          <div className="absolute left-3 top-3 inline-flex items-center rounded-full bg-black/70 px-2 py-1">
-                            <span className="text-[10px] font-medium uppercase tracking-wide text-white">
-                              {project.platform}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="p-4 space-y-2">
-                        <h4 className="text-sm font-semibold text-gray-900 line-clamp-2">
-                          {project.title}
-                        </h4>
-                        {project.tags && project.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 mt-1">
-                            {project.tags.map((tag) => (
-                              <span
-                                key={tag}
-                                className="inline-flex items-center rounded-full bg-gray-50 px-2 py-0.5 text-[11px] text-gray-700 border border-gray-200"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </section>
+                designer={designer}
+                onOpenLightbox={openLightbox}
+              />
             ))}
           </div>
         </div>
 
-        {/* THUMBNAIL DESIGNER SECTIONS WITH TABS */}
-        {thumbDesigners.length > 0 && (
+        {/* THUMBNAIL DESIGNERS */}
+        {thumbnailDesigners.length > 0 && (
           <div className="mt-16 space-y-10">
+            <div className="text-center space-y-3">
+              <h2 className="text-2xl font-semibold text-gray-900">
+                Thumbnail Designers
+              </h2>
+              <p className="text-sm text-gray-600 max-w-2xl mx-auto">
+                Focused thumbnail work designed to convert clicks. Some
+                designers also offer other services – switch tabs inside their
+                card to see everything they do.
+              </p>
+            </div>
+
             <div className="space-y-12">
-              {thumbDesigners.map((designer) => (
-                <ThumbnailDesignerSection
+              {thumbnailDesigners.map((designer) => (
+                <DesignerPanel
                   key={designer.id}
                   designer={designer}
-                  onOpenGallery={openThumbGallery}
+                  onOpenLightbox={openLightbox}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* EMOTE DESIGNERS */}
+        {emoteDesigners.length > 0 && (
+          <div className="mt-16 space-y-10">
+            <div className="text-center space-y-3">
+              <h2 className="text-2xl font-semibold text-gray-900">
+                Emotes &amp; Stickers
+              </h2>
+              <p className="text-sm text-gray-600 max-w-2xl mx-auto">
+                Twitch emotes and sticker-style assets. Tabs let you move
+                between different packs or styles if a designer offers more than
+                one type of work.
+              </p>
+            </div>
+
+            <div className="space-y-12">
+              {emoteDesigners.map((designer) => (
+                <DesignerPanel
+                  key={designer.id}
+                  designer={designer}
+                  onOpenLightbox={openLightbox}
                 />
               ))}
             </div>
@@ -656,13 +533,13 @@ export default function PortfolioPage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {
-                title: "Banners",
+                title: "Banners & Headers",
                 desc: "Custom Twitch & YouTube banners designed to reflect your brand’s identity.",
                 color: "bg-gradient-to-r from-gray-100 to-gray-200",
               },
               {
-                title: "Profile Pictures",
-                desc: "Unique PFPs that capture your character — perfect for streamers or online personas.",
+                title: "Wallpapers",
+                desc: "High-resolution character and scene wallpapers for desktop or mobile.",
                 color: "bg-gradient-to-r from-gray-100 to-gray-200",
               },
               {
@@ -671,18 +548,18 @@ export default function PortfolioPage() {
                 color: "bg-gradient-to-r from-gray-100 to-gray-200",
               },
               {
-                title: "Logos",
+                title: "Logos & Icons",
                 desc: "Minimal or illustrated logos tailored for streamers, startups, and developers.",
+                color: "bg-gradient-to-r from-gray-100 to-gray-200",
+              },
+              {
+                title: "Twitch Emotes",
+                desc: "Custom emotes and stickers to give your chat more personality.",
                 color: "bg-gradient-to-r from-gray-100 to-gray-200",
               },
               {
                 title: "Overlay Elements",
                 desc: "Stream overlays, alerts, and scene assets designed for consistency and clarity.",
-                color: "bg-gradient-to-r from-gray-100 to-gray-200",
-              },
-              {
-                title: "Portfolio Websites",
-                desc: "Front-end sites designed with speed and visual cohesion in mind.",
                 color: "bg-gradient-to-r from-gray-100 to-gray-200",
               },
             ].map((cat, i) => (
@@ -746,25 +623,14 @@ export default function PortfolioPage() {
         </div>
       </div>
 
-      {/* Banner lightbox (per designer) */}
-      {bannerGallery && (
-        <BannerLightbox
-          items={bannerGallery.items}
-          index={bannerGallery.index}
-          onClose={closeBannerGallery}
-          onPrev={prevBanner}
-          onNext={nextBanner}
-        />
-      )}
-
-      {/* Thumbnail lightbox (per thumbnail designer) */}
-      {thumbGallery && (
-        <ThumbnailLightbox
-          items={thumbGallery.items}
-          index={thumbGallery.index}
-          onClose={closeThumbGallery}
-          onPrev={prevThumb}
-          onNext={nextThumb}
+      {/* Lightbox */}
+      {lightbox && (
+        <MediaLightbox
+          items={lightbox.items}
+          index={lightbox.index}
+          onClose={closeLightbox}
+          onPrev={prev}
+          onNext={next}
         />
       )}
     </section>
