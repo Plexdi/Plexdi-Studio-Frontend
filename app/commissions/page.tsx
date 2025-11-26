@@ -165,14 +165,26 @@ export default function CommissionsPage() {
               <option value="Discord Server Package">Discord Server Package</option>
               <option value="Discord User Profile Package">Discord User Profile Package</option>
               <option value="Social Media Banner Package">Social Media Banner Package</option>
-              <option value="Starter Streamer Bundle">Starter Streamer Bundle</option>
-              <option value="Starter Youtube Bundle">Starter Youtube Bundle</option>
-              <option value="Streamer Packs">Stream / Creator Packs</option>
-
+              <option value="Starter Streamer Package">Starter Streamer Package</option>
+              <option value="Starter Youtube Package">Starter Youtube Package</option>
+              <option value="Streamer Package">Stream / Creator Package</option>
               <option value="custom">Custom Request</option>
             </select>
           </div>
-
+          {(
+            form.type === "Discord Server Package" ||
+            form.type === "Discord User Profile Package" ||
+            form.type === "Social Media Banner Package" ||
+            form.type === "Starter Streamer Package" ||
+            form.type === "Starter Youtube Package" ||
+            form.type === "Streamer Package"
+          ) && (
+            <div className="text-sm text-gray-400 bg-gray-800 p-3 rounded-lg">
+              <p>
+                Note: For package commissions, please select the "Standard" tier to ensure all components are included.
+              </p>
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">Tier</label>
             <select
