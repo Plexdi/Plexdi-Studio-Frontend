@@ -23,4 +23,3 @@ export interface Product {
   updatedAt: string;
 }
 
-export const products: Product[] = [ /* ...test products from earlier... */ ];

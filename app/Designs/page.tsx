@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import PortfolioCarousel from "@/components/ui/carousel";
 import { banners } from "../data/Banners";
-import { designerShowcase, thumbnailShowcase, twitchEmotes } from "../data/Designers";
+import { designerShowcase, thumbnailShowcase } from "../data/Designers";
 import {
   SiAdobephotoshop,
   SiFigma,
@@ -254,6 +254,162 @@ function ThumbnailLightbox({
   );
 }
 
+// ---- Thumbnail designer section with internal tabs ----
+type ThumbnailDesignerSectionProps = {
+  designer: Designer;
+  onOpenGallery: (items: Project[], index: number) => void;
+};
+
+function ThumbnailDesignerSection({
+  designer,
+  onOpenGallery,
+}: ThumbnailDesignerSectionProps) {
+  // Group projects by platform (YouTube, Twitch, etc.)
+  const categoryMap = new Map<
+    string,
+    { label: string; projects: Project[] }
+  >();
+
+  designer.projects.forEach((project) => {
+    const platform = project.platform || "Other";
+    const id = platform.toLowerCase();
+    const label =
+      platform === "Other" ? "Thumbnails" : `${platform} Thumbnails`;
+
+    if (!categoryMap.has(id)) {
+      categoryMap.set(id, { label, projects: [] });
+    }
+    categoryMap.get(id)!.projects.push(project);
+  });
+
+  const categories = Array.from(categoryMap.entries()).map(
+    ([id, value]) => ({
+      id,
+      label: value.label,
+      projects: value.projects,
+    })
+  );
+
+  const [activeCategoryId, setActiveCategoryId] = useState(
+    categories[0]?.id ?? ""
+  );
+
+  const activeCategory =
+    categories.find((c) => c.id === activeCategoryId) || categories[0];
+
+  return (
+    <section className="rounded-2xl border border-gray-200 bg-gray-50/70 p-5 sm:p-6 lg:p-8 space-y-6">
+      {/* Header with tabs */}
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="space-y-1">
+          <h3 className="text-base font-semibold text-gray-900">
+            {designer.name}
+          </h3>
+          {designer.role && (
+            <p className="text-xs text-gray-500">{designer.role}</p>
+          )}
+          {designer.specialties && designer.specialties.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {designer.specialties.map((spec) => (
+                <span
+                  key={spec}
+                  className="inline-flex items-center rounded-full bg-white px-2 py-0.5 text-[11px] text-gray-700 border border-gray-200"
+                >
+                  {spec}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Segmented control */}
+        {categories.length > 0 && (
+          <div className="inline-flex rounded-full bg-white p-1 border border-gray-200">
+            {categories.map((cat) => {
+              const isActive = cat.id === activeCategoryId;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setActiveCategoryId(cat.id)}
+                  className={`px-3 py-1 text-xs font-medium rounded-full transition ${
+                    isActive
+                      ? "bg-gray-900 text-white"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Optional tiny label */}
+      {activeCategory && (
+        <p className="text-xs font-semibold tracking-wide uppercase text-gray-500">
+          {activeCategory.label}
+        </p>
+      )}
+
+      {/* Thumbnails grid for active category */}
+      {activeCategory && (
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {activeCategory.projects.map((project, projectIndex) => (
+            <article
+              key={project.id}
+              className="group rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition cursor-zoom-in"
+              onClick={() =>
+                onOpenGallery(activeCategory.projects, projectIndex)
+              }
+            >
+              <div className="relative aspect-video bg-gray-100 overflow-hidden">
+                <Image
+                  src={project.preview}
+                  alt={project.title}
+                  fill
+                  className="object-cover group-hover:scale-[1.03] transition-transform duration-300"
+                />
+                {project.platform && (
+                  <div className="absolute left-3 top-3 inline-flex items-center rounded-full bg-black/70 px-2 py-1">
+                    <span className="text-[10px] font-medium uppercase tracking-wide text-white">
+                      {project.platform}
+                    </span>
+                  </div>
+                )}
+                <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/35 transition">
+                  <span className="rounded-full bg-white/95 px-3 py-1 text-[11px] font-medium text-gray-900 shadow-sm">
+                    View thumbnail
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-4 space-y-2">
+                <h4 className="text-sm font-semibold text-gray-900 line-clamp-2">
+                  {project.title}
+                </h4>
+                {project.tags && project.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-1">
+                    {project.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="inline-flex items-center rounded-full bg-gray-50 px-2 py-0.5 text-[11px] text-gray-700 border border-gray-200"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 // ---- Main page ----
 const slides = banners.map((b) => ({
   title: b.title,
@@ -265,11 +421,15 @@ const slides = banners.map((b) => ({
 
 export default function PortfolioPage() {
   const designers = designerShowcase as Designer[];
+
   const thumbDesigners: Designer[] = (() => {
-    // If thumbnailShowcase already contains Designer-like objects, use it directly,
-    // otherwise treat it as a flat array of Project and wrap into a single Designer group.
     const sample = (thumbnailShowcase as any[])[0];
-    if (sample && typeof sample === "object" && "projects" in sample && "name" in sample) {
+    if (
+      sample &&
+      typeof sample === "object" &&
+      "projects" in sample &&
+      "name" in sample
+    ) {
       return thumbnailShowcase as unknown as Designer[];
     }
     return [
@@ -469,109 +629,16 @@ export default function PortfolioPage() {
           </div>
         </div>
 
-        {/* THUMBNAIL DESIGNER SECTIONS (future-proof, same style) */}
+        {/* THUMBNAIL DESIGNER SECTIONS WITH TABS */}
         {thumbDesigners.length > 0 && (
           <div className="mt-16 space-y-10">
-            <div className="text-center space-y-3">
-              <h2 className="text-2xl font-semibold text-gray-900">
-                Thumbnail Designer Showcase
-              </h2>
-              <p className="text-sm text-gray-600 max-w-2xl mx-auto">
-                A focused look at YouTube and content thumbnails, grouped by
-                designer. Click any thumbnail to view it in full and navigate
-                through that designer&apos;s set.
-              </p>
-            </div>
-
             <div className="space-y-12">
               {thumbDesigners.map((designer) => (
-                <section
+                <ThumbnailDesignerSection
                   key={designer.id}
-                  className="rounded-2xl border border-gray-200 bg-gray-50/70 p-5 sm:p-6 lg:p-8 space-y-6"
-                >
-                  {/* Thumbnail designer header */}
-                  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <div className="space-y-1">
-                      <h3 className="text-base font-semibold text-gray-900">
-                        {designer.name}
-                      </h3>
-                      {designer.role && (
-                        <p className="text-xs text-gray-500">
-                          {designer.role}
-                        </p>
-                      )}
-                      {designer.specialties &&
-                        designer.specialties.length > 0 && (
-                          <div className="mt-2 flex flex-wrap gap-1.5">
-                            {designer.specialties.map((spec) => (
-                              <span
-                                key={spec}
-                                className="inline-flex items-center rounded-full bg-white px-2 py-0.5 text-[11px] text-gray-700 border border-gray-200"
-                              >
-                                {spec}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                    </div>
-                    <p className="text-xs text-gray-500 max-w-sm leading-relaxed">
-                      Thumbnail work from {designer.name}, designed to stand out
-                      in feeds and drive clicks.
-                    </p>
-                  </div>
-
-                  {/* Thumbnails grid – clickable, aspect-video */}
-                  <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                    {designer.projects.map((project, projectIndex) => (
-                      <article
-                        key={project.id}
-                        className="group rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition cursor-zoom-in"
-                        onClick={() =>
-                          openThumbGallery(designer.projects, projectIndex)
-                        }
-                      >
-                        <div className="relative aspect-video bg-gray-100 overflow-hidden">
-                          <Image
-                            src={project.preview}
-                            alt={project.title}
-                            fill
-                            className="object-cover group-hover:scale-[1.03] transition-transform duration-300"
-                          />
-                          {project.platform && (
-                            <div className="absolute left-3 top-3 inline-flex items-center rounded-full bg-black/70 px-2 py-1">
-                              <span className="text-[10px] font-medium uppercase tracking-wide text-white">
-                                {project.platform}
-                              </span>
-                            </div>
-                          )}
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/35 transition">
-                            <span className="rounded-full bg-white/95 px-3 py-1 text-[11px] font-medium text-gray-900 shadow-sm">
-                              View thumbnail
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="p-4 space-y-2">
-                          <h4 className="text-sm font-semibold text-gray-900 line-clamp-2">
-                            {project.title}
-                          </h4>
-                          {project.tags && project.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-1.5 mt-1">
-                              {project.tags.map((tag) => (
-                                <span
-                                  key={tag}
-                                  className="inline-flex items-center rounded-full bg-gray-50 px-2 py-0.5 text-[11px] text-gray-700 border border-gray-200"
-                                >
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                </section>
+                  designer={designer}
+                  onOpenGallery={openThumbGallery}
+                />
               ))}
             </div>
           </div>

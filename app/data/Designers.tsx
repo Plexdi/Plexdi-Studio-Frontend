@@ -1,3 +1,5 @@
+import { platform } from "os";
+
 export const designerShowcase = [
   {
     id: "Bones",
@@ -28,23 +30,23 @@ export const designerShowcase = [
   {
     id: "Akira",
     name: "Akira",
-    specialties: ["Banner", "Thumbnails", "pfp"],
+    specialties: ["Banner", "Wallpapers"],
     projects: [
       {
         id: "Akira-1",
-        title: "Social Media Header",
+        title: "2B Banner",
         preview: "/Akira-2B.png",
         tags: ["Social Media"],
       },
       {
         id: "Akira-2",
-        title: "Social Media Banner",
+        title: "Furina Banner",
         preview: "/Akira-Furina.png",
         tags: ["Social Media"],
       },
       {
         id: "Akira-3",
-        title: "Madara Header",
+        title: "Xiao Banner",
         preview: "/Akira-Xiao.png",
         tags: ["Anime Header"],
       },
@@ -57,49 +59,55 @@ export const thumbnailShowcase = [
     id: "thumb-designer-1",
     name: "Hitaka",
     role: "Thumbnail Specialist",
-    specialties: ["YouTube Thumbnails", "Click-through Focus"],
+    specialties: ["YouTube Thumbnails"],
     projects: [
       {
         id: "Hitaka-thumb-1",
         title: "Youtube Thumbnail – Passive Income Ideas",
         preview: "/Hitaka-3_Passive_Income_Ideas_That_Made_Me_1500_a_Month.jpg",
         platform: "YouTube",
-        tags: ["Thumbnail"],
+        tags: ["Youtube Thumbnails"],
       },
       {
         id: "Hitaka-thumb-2",
         title: "YouTube Thumbnail – Ghost of Tsushima",
         preview: "/Hitaka-Lenovo_Legion_Go_2_-_Ghost_of_Tsushima.jpg",
         platform: "YouTube",
-        tags: ["Thumbnail"],
+        tags: ["Youtube Thumbnails"],
       },
       {
         id: "Hitaka-thumb-3",
         title: "Youtube Thumbnail – DEBT",
         preview: "/Hitaka-DEBT.jpg",
         platform: "YouTube",
-        tags: ["Thumbnail"],
+        tags: ["Youtube Thumbnails"],
       },
       {
         id: "Hitaka-thumb-4",
         title: "Thumbnail – How I Saved $10,000 in 6 Months",
         preview: "/Hitaka-How_I_Saved_10000_in_6_Months_on_a_Low_Income.jpg",
         platform: "YouTube",
-        tags: ["Thumbnail"],
+        tags: ["Youtube Thumbnails"],
       },
             {
         id: "Hitaka-thumb-5",
         title: "Youtube Thumbnail – 2025",
         preview: "/Hitaka-Its_2025....jpg",
         platform: "YouTube",
-        tags: ["Thumbnail"],
+        tags: ["Youtube Thumbnails"],
       },
       {
         id: "Hitaka-thumb-6",
         title: "Youtube Thumbnail – Jack Doherty",
         preview: "/Hitaka-Jack_doherty_1.jpg",
         platform: "YouTube",
-        tags: ["Thumbnail"],
+        tags: ["Youtube Thumbnails"],
+      },
+      {
+        id: "Hitaka-thumb-6",
+        title: "Youtube Thumbnail – Jack Doherty",
+        preview: "/Hitaka-Jack_doherty_1.jpg",
+        tags: ["Youtube Thumbnails"],
       },
     ],
   },
