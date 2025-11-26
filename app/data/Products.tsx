@@ -364,6 +364,19 @@ export const pricingCategories = [
         ],
         bestFor: "New streamers building their first cohesive look."
       },
+      {
+        id: "starter-youtube-bundle",
+        title: "Starter Youtube Bundle",
+        priceLabel: "£60 (Save £10)",
+        summary:
+          "The most popular setup for new creators — simple, clean, and affordable.",
+        includes: [
+          "Standard Banner",
+          "Standard PFP",
+          "3 Twitch/Discord Emotes"
+        ],
+        bestFor: "New streamers building their first cohesive look."
+      },
 
       // ⭐ ULTIMATE CREATOR BUNDLE
       {

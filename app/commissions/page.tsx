@@ -162,7 +162,13 @@ export default function CommissionsPage() {
               <option value="Thumbnail">YouTube Thumbnail</option>
               <option value="PFP">Profile Picture</option>
               <option value="Twitch Emotes">Twitch Emotes</option>
+              <option value="Discord Server Package">Discord Server Package</option>
+              <option value="Discord User Profile Package">Discord User Profile Package</option>
+              <option value="Social Media Banner Package">Social Media Banner Package</option>
+              <option value="Starter Streamer Bundle">Starter Streamer Bundle</option>
+              <option value="Starter Youtube Bundle">Starter Youtube Bundle</option>
               <option value="Streamer Packs">Stream / Creator Packs</option>
+
               <option value="custom">Custom Request</option>
             </select>
           </div>
