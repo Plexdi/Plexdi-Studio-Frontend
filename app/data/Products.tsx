@@ -367,7 +367,7 @@ export const pricingCategories = [
       {
         id: "starter-youtube-bundle",
         title: "Starter Youtube Bundle",
-        priceLabel: "40 (Save £10)",
+        priceLabel: "£40 (Save £10)",
         summary:
           "The most popular setup for new creators — simple, clean, and affordable.",
         includes: [
