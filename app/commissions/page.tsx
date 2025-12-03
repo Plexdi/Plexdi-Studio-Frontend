@@ -244,7 +244,6 @@ export default function CommissionsPage() {
               placeholder="Paste any links or image references"
             />
           </div>
-
           {/* Submit */}
           <div className="pt-4">
             <button
