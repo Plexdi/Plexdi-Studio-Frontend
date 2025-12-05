@@ -158,6 +158,7 @@ export default function CommissionsPage() {
             >
               <option value="">Select type</option>
               <option value="Banner">Banner Design</option>
+              <option value="PFP">Profile Pictures</option>
               <option value="Logos">Logo Design</option>
               <option value="Thumbnail">YouTube Thumbnail</option>
               <option value="PFP">Profile Picture</option>
